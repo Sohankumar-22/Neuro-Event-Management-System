@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block body_class %}about-heritage-theme{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-heritage-theme {
+        background: #0f121a;
+        background-image: 
+            radial-gradient(circle at top right, rgba(147, 51, 234, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at bottom left, rgba(197, 160, 89, 0.05) 0%, transparent 40%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+    .about-wrapper {
+        max-width: 1880px;
+        margin: 0 auto;
+        padding: 5rem 4rem;
+    }
+
+    .about-hero-section {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 5rem;
+        align-items: center;
+        margin-bottom: 8rem;
+    }
+
+    .about-visual {
+        position: relative;
+    }
+
+    .about-visual img {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid rgba(197, 160, 89, 0.3);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    .about-visual::after {
+        content: '';
+        position: absolute;
+        inset: -15px;
+        border: 1px solid var(--primary);
+        border-radius: 40px;
+        opacity: 0.2;
+        z-index: -1;
+    }
+
+    .about-text h1 {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+        line-height: 1.1;
+    }
+
+    .about-text p {
+        font-size: 1.2rem;
+        color: var(--text-dim);
+        margin-bottom: 1.5rem;
+        line-height: 1.8;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 3rem;
+        margin-top: 3rem;
+    }
+
+    .stat-item h3 {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-item p {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+    }
+
+    .mission-section {
+        padding: 6rem;
+        text-align: center;
+        margin-bottom: 8rem;
+    }
+
+    .mission-section h2 {
+        font-size: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    .mission-section p {
+        max-width: 800px;
+        margin: 0 auto;
+        font-size: 1.3rem;
+        color: var(--text-dim);
+    }
+
+    @media (max-width: 1024px) {
+        .about-hero-section {
+            grid-template-columns: 1fr;
+            text-align: center;
+            gap: 3rem;
+        }
+
+        .stats-row {
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="about-wrapper">
+    <section class="about-hero-section animate-fade-in">
+        <div class="about-text">
+            <h1 class="gradient-text">Redefining the Art of Celebration</h1>
+            <p>At Eventer, we believe that every gathering is an opportunity to create a masterpiece. Founded on the
+                intersection of premium hospitality and cutting-edge AI technology, we're here to transform your vision
+                into an unforgettable reality.</p>
+            <p>Our platform empowers you to plan with precision, predict with confidence, and celebrate with absolute
+                peace of mind.</p>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <h3>10k+</h3>
+                    <p>Events Planned</p>
+                </div>
+                <div class="stat-item">
+                    <h3>99%</h3>
+                    <p>Success Rate</p>
+                </div>
+                <div class="stat-item">
+                    <h3>24/7</h3>
+                    <p>AI Support</p>
+                </div>
+            </div>
+        </div>
+        <div class="about-visual">
+            <img src="{{ url_for('static', filename='image/about_hero.png') }}" alt="Our Creative Team">
+        </div>
+    </section>
+
+    <div class="welcome-card mission-section animate-fade-in" style="animation-delay: 0.3s; background: #0a0e1a; border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 12px; margin-bottom: 5rem;">
+        <h2 class="gradient-text" style="font-family: 'Playfair Display', serif;">The Director's Vision</h2>
+        <p style="color: #94a3b8; max-width: 900px; margin: 0 auto;">"Event planning is not just about logistics; it is an architectural pursuit of emotion. At Neuro Eventer, we leverage the precision of artificial intelligence to ensure that the human element—the joy, the awe, the connection—is never lost in translation. Every event is a legacy in the making."</p>
+        <div style="margin-top: 2rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.4rem; font-style: italic;">— Sohan Kumar Swain</div>
+    </div>
+
+    <!-- NEW: Strategic Pillars Section -->
+    <section class="animate-fade-in" style="animation-delay: 0.5s; margin-bottom: 8rem;">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <h2 style="font-size: 3rem; font-family: 'Playfair Display', serif; color: white;">The Pillars of Perfection</h2>
+            <div style="width: 80px; height: 1px; background: var(--primary); margin: 1.5rem auto;"></div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem;">
+            <div style="padding: 3rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(197, 160, 89, 0.1); border-radius: 12px;">
+                <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1.5rem;">01.</div>
+                <h4 style="color: white; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1rem;">Algorithmic Precision</h4>
+                <p style="color: #64748b; font-size: 0.95rem;">Using AI to eliminate human error in scheduling, budgeting, and resource allocation.</p>
+            </div>
+            <div style="padding: 3rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(197, 160, 89, 0.1); border-radius: 12px;">
+                <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1.5rem;">02.</div>
+                <h4 style="color: white; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1rem;">Artisanal Design</h4>
+                <p style="color: #64748b; font-size: 0.95rem;">Every visual element is hand-curated to reflect the personal story of our clients.</p>
+            </div>
+            <div style="padding: 3rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(197, 160, 89, 0.1); border-radius: 12px;">
+                <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1.5rem;">03.</div>
+                <h4 style="color: white; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1rem;">Global Connection</h4>
+                <p style="color: #64748b; font-size: 0.95rem;">Access to a world-class network of vendors, performers, and exclusive venues.</p>
+            </div>
+        </div>
+    </section>
+</div>
+    {% endblock %}
+
+{% block footer %}
+<footer style="background: #05070a; border-top: 1px solid rgba(197, 160, 89, 0.2); padding: 8rem 2rem 4rem; position: relative; overflow: hidden;">
+    <div style="position: absolute; top:0; left:0; width:100%; height:100%; opacity: 0.03; pointer-events: none; font-family: 'Playfair Display'; font-size: 20rem; color: var(--primary); transform: rotate(-10deg) translate(-20%, -20%);">STORY</div>
+    
+    <div style="max-width: 1000px; margin: 0 auto; text-align: center; position: relative; z-index: 1;">
+        <div style="font-size: 3rem; color: var(--primary); margin-bottom: 2rem;">"</div>
+        <p style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: white; line-height: 1.6; margin-bottom: 3rem; font-style: italic;">"Sohan and his team didn't just plan an event; they curated a legacy that our family will talk about for generations. The AI precision was invisible, but the perfection was undeniable."</p>
+        <div style="width: 50px; height: 1px; background: var(--primary); margin: 0 auto 2rem;"></div>
+        <div style="color: #94a3b8; text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem;">Exclusive Client &bull; 2025 Gala</div>
+        
+        <div style="margin-top: 6rem; display: flex; justify-content: center; gap: 4rem;">
+            <a href="{{ url_for('contact') }}" style="color: white; text-decoration: none; font-weight: 600; border-bottom: 1px solid var(--primary); padding-bottom: 5px;">REQUEST AN INTERVIEW</a>
+            <a href="{{ url_for('home') }}" style="color: #64748b; text-decoration: none; font-weight: 600;">BACK TO PORTFOLIO</a>
+        </div>
+        
+        <div style="margin-top: 6rem; color: #334155; font-size: 0.8rem; letter-spacing: 2px;">
+            &copy; 2026 THE NEURO EVENTER ARCHIVES &bull; CURATED BY SOHAN KUMAR SWAIN
+        </div>
+    </div>
+</footer>
+{% endblock %}

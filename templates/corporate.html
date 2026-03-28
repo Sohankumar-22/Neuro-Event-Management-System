@@ -1,0 +1,260 @@
+{% extends "layout.html" %}
+
+{% block body_class %}corporate-executive-theme{% endblock %}
+
+{% block extra_css %}
+<style>
+    .corporate-executive-theme {
+        background: #000;
+        overflow-x: hidden;
+    }
+    
+    /* Animated Stage Background */
+    .stage-animation-layer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        background: 
+            linear-gradient(rgba(0, 5, 20, 0.7), rgba(0, 5, 20, 0.9)),
+            url("{{ url_for('static', filename='image/corporate_stage.jpg') }}?v=7"),
+            url("https://images.unsplash.com/photo-1475721027187-402ec7570415?auto=format&fit=crop&w=1920&q=80");
+        background-size: cover;
+        background-position: center;
+    }
+
+    /* Cinematic Light Rays */
+    .light-rays {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(45deg, transparent, transparent 100px, rgba(0, 238, 255, 0.03) 100px, rgba(0, 238, 255, 0.03) 200px);
+        animation: slide-rays 20s infinite linear;
+        opacity: 0.5;
+        z-index: 1;
+    }
+
+    @keyframes slide-rays {
+        from { background-position: 0 0; }
+        to { background-position: 2000px 0; }
+    }
+
+    /* Pulsing Blue Glow */
+    .glow-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 50%, rgba(0, 238, 255, 0.1), transparent 70%);
+        animation: pulse-glow 4s infinite alternate ease-in-out;
+    }
+
+    /* Scanlines effect */
+    .scanlines {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0),
+            rgba(255, 255, 255, 0) 50%,
+            rgba(0, 0, 0, 0.1) 50%,
+            rgba(0, 0, 0, 0.1)
+        );
+        background-size: 100% 4px;
+        z-index: 1;
+        opacity: 0.3;
+    }
+
+    @keyframes pulse-glow {
+        from { opacity: 0.3; transform: scale(1); }
+        to { opacity: 0.6; transform: scale(1.05); }
+    }
+
+    .page-wrapper {
+        position: relative;
+        z-index: 10;
+        min-height: 100vh;
+        padding-bottom: 8rem;
+    }
+
+    .category-hero {
+        height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 100px;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .hero-text {
+        text-align: center;
+        z-index: 2;
+        background: rgba(0,0,0,0.6);
+        padding: 3rem;
+        border-radius: 20px;
+        border: 1px solid rgba(0,238,255,0.3);
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-text h1 {
+        font-size: clamp(3rem, 8vw, 5rem);
+        margin-bottom: 1rem;
+    }
+
+    .events-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 3rem;
+    }
+
+    .event-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .event-image-container {
+        width: 100%;
+        height: 240px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .event-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .event-card:hover .event-image {
+        transform: scale(1.1);
+    }
+
+    .event-content {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .event-card h3 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .event-details {
+        flex-grow: 1;
+        margin-bottom: 2rem;
+        color: var(--text-dim);
+    }
+
+    .event-details div {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stage-animation-layer">
+    <div class="glow-overlay"></div>
+    <div class="light-rays"></div>
+    <div class="scanlines"></div>
+</div>
+
+<div class="page-wrapper">
+    <div class="category-hero">
+        <div class="hero-text animate-fade-in">
+            <h1 class="gradient-text">Corporate Galas</h1>
+            <p>Networking, excellence, and professional celebrations.</p>
+        </div>
+    </div>
+
+    <div class="events-container">
+        {% for event in events %}
+        {% if event.type == "corporate" %}
+        <div class="glass-card event-card animate-fade-in">
+            <div class="event-image-container">
+                <img src="{{ url_for('static', filename='image/' + event.image) }}" alt="{{ event.location }}"
+                    class="event-image">
+            </div>
+            <div class="event-content">
+                <h3>{{ event.title }} Event</h3>
+                <div class="event-details">
+                    <div>📍 <strong>{{ event.location }}</strong></div>
+                    <p>{{ event.description }}</p>
+                    <div style="margin-top: 1rem;">👥 Capacity: {{ event.capacity }}</div>
+                </div>
+                <a href="{{ url_for('book', title=event.title, location=event.location, capacity=event.capacity) }}"
+                    class="btn-premium btn-primary" style="width: 100%;">
+                    Book Experience
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        {% for event in db_events %}
+        <div class="glass-card event-card animate-fade-in">
+            <div class="event-image-container">
+                <img src="{{ url_for('static', filename='image/' + event.image) if event.image else url_for('static', filename='image/corporate_stage.jpg') }}" alt="{{ event.location }}"
+                    class="event-image">
+            </div>
+            <div class="event-content">
+                <h3>{{ event.location.split(',')[0] }} (Custom)</h3>
+                <div class="event-details">
+                    <div>📍 <strong>{{ event.location }}</strong></div>
+                    <p>{{ event.description }}</p>
+                    <div style="margin-top: 1rem;">👥 Capacity: {{ event.capacity }}</div>
+                </div>
+                <a href="{{ url_for('book', title=event.title, location=event.location, capacity=event.capacity) }}"
+                    class="btn-premium btn-primary" style="width: 100%;">
+                    Reserve Special Event
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+<footer style="background: #050608; border-top: 1px solid rgba(197, 160, 89, 0.2); padding: 8rem 2rem 4rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 6rem; align-items: start;">
+        <div>
+            <h2 style="font-family: 'Playfair Display', serif; color: white; font-size: 2.2rem; margin-bottom: 2rem;">Executive Strategy</h2>
+            <p style="color: #64748b; line-height: 1.8; font-size: 0.95rem;">Delivering high-impact corporate experiences for the world's leading enterprises. Precision, Privacy, and Performance.</p>
+        </div>
+        <div>
+            <h4 style="color: white; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">Clients</h4>
+            <a href="#" style="color: #475569; text-decoration: none; display: block; margin-bottom: 0.8rem;">Corporate Galas</a>
+            <a href="#" style="color: #475569; text-decoration: none; display: block; margin-bottom: 0.8rem;">Product Launches</a>
+            <a href="#" style="color: #475569; text-decoration: none; display: block; margin-bottom: 0.8rem;">Annual Summits</a>
+        </div>
+        <div>
+            <h4 style="color: white; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">Security</h4>
+            <p style="color: #475569; font-size: 0.85rem;">256-bit AI encryption for event logistics. Directed by Sohan Kumar Swain.</p>
+        </div>
+    </div>
+    <div style="max-width: 1400px; margin: 4rem auto 0; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: center; color: #334155; font-size: 0.75rem;">
+        &copy; 2026 EVENTER CORPORATE GROUP &bull; ALL ASSETS PROTECTED
+    </div>
+</footer>
+{% endblock %}

@@ -1,0 +1,298 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+  /* Base Variables */
+  :root {
+    --gold: #d4af37;
+    --gold-glow: rgba(212, 175, 55, 0.4);
+    --dark-surface: #0f0f11;
+    --darker-bg: #050505;
+    --text-muted: #888;
+    --glass-bg: rgba(20, 20, 22, 0.85);
+  }
+
+  body {
+    background-color: var(--darker-bg);
+  }
+
+  .explore-container {
+    max-width: 1400px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Header */
+  .explore-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+  .explore-header h1 {
+    font-size: 3.5rem;
+    font-family: 'Playfair Display', serif;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+  .explore-header h1 span {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  /* Filter Tabs */
+  .filter-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+  }
+  .filter-tab {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .filter-tab:hover {
+    border-color: var(--gold);
+    background: rgba(212, 175, 55, 0.05);
+  }
+  .filter-tab.active {
+    background: var(--gold);
+    color: #000;
+    border-color: var(--gold);
+    box-shadow: 0 0 20px var(--gold-glow);
+  }
+
+  /* Grid Layout */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 3rem;
+  }
+
+  /* The Card */
+  .n-card {
+    position: relative;
+    background: var(--dark-surface);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  /* Animated Gradient Backgrounds per Category */
+  .n-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    z-index: -1;
+    opacity: 0.15;
+    transition: opacity 0.5s ease;
+    animation: rotateGradient 10s linear infinite;
+  }
+
+  @keyframes rotateGradient {
+    100% { transform: rotate(360deg); }
+  }
+
+  .n-card[data-cat="fashion"]::before {
+    background: conic-gradient(from 0deg, transparent, #ff007f, #7928ca, transparent);
+  }
+  .n-card[data-cat="sports"]::before {
+    background: conic-gradient(from 0deg, transparent, #00ff88, #00bfff, transparent);
+  }
+  .n-card[data-cat="festival"]::before {
+    background: conic-gradient(from 0deg, transparent, #ff9900, #ff0055, transparent);
+  }
+  .n-card[data-cat="charity"]::before {
+    background: conic-gradient(from 0deg, transparent, #00e676, #00b0ff, transparent);
+  }
+
+  .n-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    border-color: var(--gold);
+  }
+  .n-card:hover::before {
+    opacity: 0.4;
+  }
+
+  /* Inner elements overlay */
+  .n-card-inner {
+    background: var(--glass-bg);
+    position: absolute;
+    inset: 1px;
+    border-radius: 19px;
+    z-index: -1;
+  }
+
+  /* Card elements */
+  .c-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+  }
+  
+  .c-pill {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    backdrop-filter: blur(10px);
+  }
+
+  .c-price {
+    background: linear-gradient(135deg, var(--gold), #ffdf73);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 1.4rem;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .c-title {
+    font-size: 1.8rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .c-detail {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .c-detail i {
+    color: var(--gold);
+    font-size: 1.1rem;
+  }
+
+  .c-tag {
+    display: inline-block;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: auto;
+    align-self: flex-start;
+  }
+
+</style>
+
+<div class="explore-container">
+  <div class="explore-header animate-fade-in">
+    <h1>Explore <span>Premium</span> Categories</h1>
+    <p style="color: var(--text-muted); font-size: 1.2rem;">Discover curated exclusive blueprints for high-end events.</p>
+  </div>
+
+  <div class="filter-tabs animate-fade-in" id="filterTabs">
+    <button class="filter-tab active" data-filter="all">All</button>
+    <button class="filter-tab" data-filter="fashion">Fashion Show</button>
+    <button class="filter-tab" data-filter="sports">Sports</button>
+    <button class="filter-tab" data-filter="festival">Festival</button>
+    <button class="filter-tab" data-filter="charity">Charity</button>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid">
+    <!-- Cards rendered via JS -->
+  </div>
+</div>
+
+<script>
+  const eventsData = [
+    { "id": 1, "category": "fashion", "title": "Milan Fashion Week Expo", "date": "Oct 12, 2026", "location": "Grand Plaza, Mumbai", "guests": 500, "price": 120000, "tag": "Luxury", "status": "upcoming" },
+    { "id": 2, "category": "fashion", "title": "Vogue Trend Showcase", "date": "Nov 05, 2026", "location": "ITC Grand, Chola", "guests": 300, "price": 85000, "tag": "Elite", "status": "upcoming" },
+    { "id": 3, "category": "fashion", "title": "Bridal Couture Show", "date": "Dec 20, 2026", "location": "Taj Palace, Delhi", "guests": 800, "price": 250000, "tag": "Premium", "status": "upcoming" },
+    
+    { "id": 4, "category": "sports", "title": "Pro Tennis Final Viewing", "date": "Jul 15, 2026", "location": "Sports Arena, Bangalore", "guests": 1000, "price": 15000, "tag": "Live", "status": "upcoming" },
+    { "id": 5, "category": "sports", "title": "Corporate Golf Tournament", "date": "Aug 22, 2026", "location": "Prestige Golf Club, Pune", "guests": 150, "price": 55000, "tag": "Exclusive", "status": "upcoming" },
+    { "id": 6, "category": "sports", "title": "Marathon After-Party", "date": "Sep 10, 2026", "location": "City Ground, Hyderabad", "guests": 2000, "price": 30000, "tag": "Public", "status": "upcoming" },
+    
+    { "id": 7, "category": "festival", "title": "EDM Sunburn Fest", "date": "Dec 30, 2026", "location": "Vagator Beach, Goa", "guests": 5000, "price": 300000, "tag": "Mega", "status": "upcoming" },
+    { "id": 8, "category": "festival", "title": "Cultural Light Festival", "date": "Oct 24, 2026", "location": "India Gate, Delhi", "guests": 10000, "price": 100000, "tag": "Cultural", "status": "upcoming" },
+    { "id": 9, "category": "festival", "title": "Food & Wine Fiesta", "date": "Nov 15, 2026", "location": "Bandra Kurla, Mumbai", "guests": 800, "price": 60000, "tag": "Gourmet", "status": "upcoming" },
+    
+    { "id": 10, "category": "charity", "title": "Hope Foundation Gala", "date": "Aug 05, 2026", "location": "Oberoi Hotel, Kolkata", "guests": 400, "price": 25000, "tag": "Philanthropy", "status": "upcoming" },
+    { "id": 11, "category": "charity", "title": "Green Earth Fundraiser", "date": "Sep 22, 2026", "location": "Eco Park, Bangalore", "guests": 600, "price": 12000, "tag": "Eco", "status": "upcoming" },
+    { "id": 12, "category": "charity", "title": "Art for Cause Auction", "date": "Oct 10, 2026", "location": "Jahangir Gallery, Mumbai", "guests": 200, "price": 40000, "tag": "Auction", "status": "upcoming" }
+  ];
+
+  const grid = document.getElementById('cardsGrid');
+  const tabs = document.querySelectorAll('.filter-tab');
+
+  function renderData(filter) {
+    grid.innerHTML = '';
+    
+    const filtered = filter === 'all' 
+      ? eventsData 
+      : eventsData.filter(e => e.category === filter);
+
+    filtered.forEach(ev => {
+      const card = document.createElement('div');
+      card.className = 'n-card animate-fade-in';
+      card.setAttribute('data-cat', ev.category);
+      
+      card.innerHTML = `
+        <div class="n-card-inner"></div>
+        <div class="c-header">
+          <div class="c-pill">${ev.category}</div>
+          <div class="c-price">₹${ev.price.toLocaleString('en-IN')}</div>
+        </div>
+        <h3 class="c-title">${ev.title}</h3>
+        <div class="c-detail" style="margin-top:0.5rem;">
+          <i>📍</i> ${ev.location}
+        </div>
+        <div class="c-detail">
+          <i>📅</i> ${ev.date}
+        </div>
+        <div class="c-detail" style="margin-bottom: 2rem;">
+          <i>👥</i> ${ev.guests} Guests
+        </div>
+        
+        <div class="c-tag">✦ ${ev.tag}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // Initial render
+  renderData('all');
+
+  // Tab switching logic
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderData(tab.getAttribute('data-filter'));
+    });
+  });
+
+</script>
+{% endblock %}

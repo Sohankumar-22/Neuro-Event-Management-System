@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Terminal | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <style>
+    body {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #sidebar {
+      width: 350px;
+      background: rgba(255, 255, 255, 0.02);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    #conversations-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .conv-button {
+      width: 100%;
+      padding: 1.2rem;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 0.5rem;
+    }
+
+    .conv-button:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border);
+    }
+
+    .conv-button.active {
+      background: rgba(0, 238, 255, 0.1);
+      border-color: var(--primary);
+    }
+
+    .conv-email {
+      display: block;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .conv-id {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .chat-header {
+      padding: 1.5rem 2rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Custom Scrollbar */
+    *::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+
+    .msg {
+      max-width: 70%;
+      padding: 1rem 1.2rem;
+      border-radius: 20px;
+      animation: slideIn 0.3s ease-out;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .msg.admin {
+      align-self: flex-end;
+      background: var(--primary);
+      color: black;
+      font-weight: 500;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.user {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    #message-form {
+      padding: 1.5rem 2rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+    }
+
+    #msg {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 1rem 1.5rem;
+      color: white;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    #msg:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <h2 class="gradient-text">CONVERSATIONS</h2>
+    </div>
+    <div id="conversations-list">
+      {% for conv in conversations %}
+      <button class="conv-button" id="btn-{{ conv.id }}" onclick="openChat({{ conv.id }}, '{{ conv.user_email }}');">
+        <span class="conv-email">{{ conv.user_email }}</span>
+        <span class="conv-id">SESS-{{ conv.id }}</span>
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div id="chat-main">
+    <div class="chat-header">
+      <div>
+        <h3 id="chat-title" style="color: white;">Select a Conversation</h3>
+        <span id="connection-status" style="font-size: 0.8rem; color: var(--primary);">Establishing connection...</span>
+      </div>
+    </div>
+
+    <div id="chat"></div>
+
+    <form id="message-form">
+      <input id="msg" autocomplete="off" placeholder="Type your response..." maxlength="1000" disabled>
+      <button type="submit" id="send-btn" class="btn-premium btn-primary" style="padding: 0.8rem 2rem;" disabled>
+        Reply
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const socket = io();
+    let currentConv = null;
+    const sender = "admin";
+
+    socket.on('connect', () => {
+      document.getElementById('connection-status').textContent = '● Support Terminal Active';
+      document.getElementById('connection-status').style.color = '#00eeff';
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('connection-status').textContent = '○ Terminal Offline';
+      document.getElementById('connection-status').style.color = '#ff4081';
+    });
+
+    function openChat(convId, userEmail) {
+      currentConv = convId;
+
+      // UI Updates
+      document.querySelectorAll('.conv-button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${convId}`).classList.add('active');
+      document.getElementById('chat-title').textContent = userEmail;
+
+      const msgInput = document.getElementById('msg');
+      const sendBtn = document.getElementById('send-btn');
+      msgInput.disabled = false;
+      sendBtn.disabled = false;
+      msgInput.focus();
+
+      socket.emit('join', { conversation_id: convId });
+      socket.emit('get_messages', { conversation_id: convId });
+    }
+
+    socket.on('message_history', (data) => {
+      if (data.conversation_id == currentConv) {
+        const chatDiv = document.getElementById('chat');
+        chatDiv.innerHTML = '';
+        if (data.messages) data.messages.forEach(displayMessage);
+        scrollToBottom();
+      }
+    });
+
+    socket.on('new_message', msg => {
+      if (msg.conversation_id == currentConv) {
+        displayMessage(msg);
+        scrollToBottom();
+      }
+    });
+
+    function displayMessage(msg) {
+      const chatDiv = document.getElementById('chat');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'msg ' + msg.sender;
+      messageDiv.textContent = msg.content;
+      chatDiv.appendChild(messageDiv);
+    }
+
+    function scrollToBottom() {
+      const chatDiv = document.getElementById('chat');
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    document.getElementById('message-form').onsubmit = e => {
+      e.preventDefault();
+      const msgInput = document.getElementById('msg');
+      const message = msgInput.value.trim();
+      if (!message || !currentConv) return;
+
+      socket.emit('send_message', {
+        conversation_id: currentConv,
+        sender: sender,
+        content: message
+      });
+      msgInput.value = '';
+      msgInput.focus();
+    };
+  </script>
+</body>
+
+</html>

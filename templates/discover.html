@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .discover-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+    }
+    
+    .filter-pills {
+        display: flex;
+        gap: 1rem;
+        margin: 2rem 0 4rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+    }
+    
+    .pill {
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.3s;
+        white-space: nowrap;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .pill:hover, .pill.active {
+        background: var(--primary);
+        color: black;
+        border-color: var(--primary);
+    }
+    
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .event-card {
+        border-radius: 20px;
+        overflow: hidden;
+        transition: transform 0.4s;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .event-image {
+        height: 220px;
+        width: 100%;
+        object-fit: cover;
+    }
+    
+    .event-body {
+        padding: 2rem;
+    }
+    
+    .type-tag {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+</style>
+
+<div class="discover-container">
+    <div style="margin-bottom: 3rem;" class="animate-fade-in">
+        <h1 class="gradient-text" style="font-size: 3.5rem;">Discover Experiences</h1>
+        <p style="color: var(--text-dim);">Browse our full collection of curated and custom event blueprints</p>
+    </div>
+
+    <div class="filter-pills animate-fade-in" style="animation-delay: 0.1s;">
+        <a href="/discover" class="pill active">All Blueprints</a>
+        <a href="/marriage" class="pill">Marriage</a>
+        <a href="/birthday" class="pill">Birthday</a>
+        <a href="/meetup" class="pill">Meetup</a>
+        <a href="/corporate" class="pill">Corporate</a>
+    </div>
+
+    <!-- AI Personalized Recommendations -->
+    {% if recommendations %}
+    <div style="margin-bottom: 5rem;" class="animate-fade-in" style="animation-delay: 0.2s;">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+            <div style="background: rgba(0, 238, 255, 0.1); border: 1px solid var(--primary); padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.75rem; color: var(--primary); font-weight: 700;">🤖 AI PERSONALIZED</div>
+            <div style="height: 1px; flex: 1; background: var(--border);"></div>
+        </div>
+        
+        <div class="events-grid" style="grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));">
+            {% for r in recommendations %}
+            <div class="glass-card event-card" style="border: 1px solid rgba(0, 238, 255, 0.4); background: rgba(0, 238, 255, 0.03);">
+                <div style="position: absolute; top: 1rem; right: 1rem; background: var(--primary); color: black; padding: 0.2rem 0.8rem; border-radius: 4px; font-size: 0.65rem; font-weight: 800; z-index: 2;">REASON: {{ r.reason }}</div>
+                <img src="{{ url_for('static', filename='image/' + (r.image if r.image else 'landing_hero.png')) }}" class="event-image">
+                <div class="event-body">
+                    <span class="type-tag">{{ r.title }}</span>
+                    <h3>{{ r.title }} Specialists in {{ r.location }}</h3>
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2rem;">{{ r.description if r.description else 'Experience the future of event planning with our AI-orchestrated ' + r.title + ' blueprints.' }}</p>
+                    <a href="{{ url_for( r.title.lower() ) }}" class="btn-premium" style="width: 100%; display: block; text-align: center; background: var(--primary); color: black;">VIEW BLUEPRINT</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="events-grid">
+        <!-- DB Events (Custom) -->
+        {% for e in db_events %}
+        <div class="glass-card event-card animate-fade-in" style="border-color: #9333ea;">
+            <img src="{{ url_for('static', filename='image/' + e.image) if e.image else 'https://via.placeholder.com/400x200?text=Custom+Event' }}" class="event-image">
+            <div class="event-body">
+                <span class="type-tag">{{ e.type or 'CUSTOM' }}</span>
+                <h3 style="margin-bottom: 1rem;">{{ e.location }}</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; min-height: 3em;">{{ e.description[:100] }}...</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                   <span style="font-size: 0.8rem; color: white;">👥 {{ e.capacity }} Capacity</span>
+                   <a href="{{ url_for('book', title=e.title, location=e.location, capacity=e.capacity) }}" class="btn-premium" style="padding: 0.5rem 1rem; font-size: 0.8rem;">BOOK NOW</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Static Events -->
+        {% for e in static_events %}
+        <div class="glass-card event-card animate-fade-in">
+            <img src="{{ url_for('static', filename='image/' + e.image) }}" class="event-image">
+            <div class="event-body">
+                <span class="type-tag">{{ e.title }}</span>
+                <h3 style="margin-bottom: 1rem;">{{ e.location }}</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; min-height: 3em;">{{ e.description[:100] }}...</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                   <span style="font-size: 0.8rem; color: white;">👥 {{ e.capacity }} Capacity</span>
+                   <a href="{{ url_for('book', title=e.title, location=e.location, capacity=e.capacity) }}" class="btn-premium" style="padding: 0.5rem 1rem; font-size: 0.8rem;">BOOK NOW</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

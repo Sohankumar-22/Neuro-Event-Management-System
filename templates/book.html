@@ -1,0 +1,1061 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .book-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .category-hero {
+        height: 35vh;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.7) 100%),
+        url("{{ url_for('static', filename='image/landing_hero.png') }}");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -120px;
+        margin-bottom: 2rem;
+    }
+
+    /* Override background if title matches */
+    {% if title=='Marriage' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.7) 100%),
+        url("{{ url_for('static', filename='image/wedding_bg_rings.png') }}");
+    }
+    {% elif title=='Birthday' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.7) 100%),
+        url("{{ url_for('static', filename='image/birthday.png') }}");
+    }
+    {% elif title=='Corporate' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.7) 100%),
+        url("{{ url_for('static', filename='image/corporate.png') }}");
+    }
+    {% elif title=='Meetup' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.7) 100%),
+        url("{{ url_for('static', filename='image/concert.png') }}");
+    }
+    {% elif title=='Fashion Show' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.75) 100%),
+        url("{{ url_for('static', filename='image/fashion_show.jpg') }}");
+    }
+    {% elif title=='Sports' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.75) 100%),
+        url("{{ url_for('static', filename='image/sports.jpg') }}");
+    }
+    {% elif title=='Festival' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.75) 100%),
+        url("{{ url_for('static', filename='image/festival.jpg') }}");
+    }
+    {% elif title=='Charity' %}
+    .category-hero {
+        background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.75) 100%),
+        url("{{ url_for('static', filename='image/charity.jpg') }}");
+    }
+    {% endif %}
+
+    /* ─ AI Requirements Wizard ─ */
+    .ai-wizard {
+        background: linear-gradient(135deg, rgba(147,51,234,0.08), rgba(0,238,255,0.05));
+        border: 1px solid rgba(147,51,234,0.25);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        animation: fade-in-ai 0.5s ease;
+    }
+    .ai-wizard-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .ai-avatar {
+        width: 48px; height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #9333ea, #00eeff);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        animation: bot-pulse 3s infinite;
+    }
+    .ai-wizard .ai-chat {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        margin-bottom: 1.2rem;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(147,51,234,0.3) transparent;
+    }
+    .ai-bubble {
+        background: rgba(147,51,234,0.1);
+        border: 1px solid rgba(147,51,234,0.2);
+        border-radius: 0 16px 16px 16px;
+        padding: 0.9rem 1.2rem;
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.9);
+        line-height: 1.6;
+        max-width: 85%;
+        animation: fade-in-ai 0.4s ease;
+    }
+    .user-bubble {
+        background: rgba(0,238,255,0.08);
+        border: 1px solid rgba(0,238,255,0.2);
+        border-radius: 16px 0 16px 16px;
+        padding: 0.9rem 1.2rem;
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.9);
+        line-height: 1.6;
+        max-width: 85%;
+        align-self: flex-end;
+        animation: fade-in-ai 0.3s ease;
+    }
+    .wizard-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+    }
+    .suggest-chip {
+        background: rgba(0,238,255,0.06);
+        border: 1px solid rgba(0,238,255,0.2);
+        color: var(--primary);
+        padding: 0.35rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .suggest-chip:hover {
+        background: rgba(0,238,255,0.15);
+        transform: scale(1.03);
+    }
+    .wizard-input-row {
+        display: flex;
+        gap: 0.8rem;
+    }
+    .wizard-input-row input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        color: white;
+        font-size: 0.9rem;
+        font-family: inherit;
+    }
+    .wizard-input-row input:focus { outline: none; border-color: var(--primary); }
+    .send-btn {
+        padding: 0.75rem 1.2rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #9333ea, #00eeff);
+        border: none;
+        color: black;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1rem;
+    }
+    .send-btn:hover { transform: scale(1.05); }
+    .ai-suggestion-section {
+        background: rgba(0,238,255,0.04);
+        border: 1px solid rgba(0,238,255,0.15);
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        margin-top: 0.8rem;
+        display: none;
+        animation: fade-in-ai 0.4s ease;
+    }
+    .ai-suggestion-section h5 {
+        color: var(--primary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.8rem;
+    }
+    .suggestion-list li {
+        font-size: 0.88rem;
+        color: rgba(255,255,255,0.8);
+        margin-bottom: 0.5rem;
+        padding-left: 1rem;
+        position: relative;
+    }
+    .suggestion-list li::before { content: '→'; color: var(--primary); position: absolute; left: 0; }
+
+    /* ─ Vendor Panel ─ */
+    .vendor-panel {
+        margin-top: 2.5rem;
+        display: none;
+        animation: fade-in-ai 0.5s ease;
+    }
+    .vendor-panel-inner {
+        background: rgba(255,215,0,0.04);
+        border: 1px solid rgba(255,215,0,0.2);
+        border-radius: 20px;
+        padding: 2rem;
+    }
+    .vendor-panel h4 {
+        color: #fbbf24;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .vendor-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.2rem;
+    }
+    .vendor-chip {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        padding: 1.2rem;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    .vendor-chip:hover {
+        border-color: rgba(255,215,0,0.3);
+        background: rgba(255,215,0,0.05);
+        transform: translateY(-3px);
+    }
+    .vendor-chip .v-icon { font-size: 2rem; display: block; margin-bottom: 0.6rem; }
+    .vendor-chip h6 { color: white; font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .vendor-chip p { font-size: 0.78rem; color: var(--text-dim); margin: 0; }
+
+    @keyframes bot-pulse {
+        0%, 100% { box-shadow: 0 0 0 rgba(147,51,234,0.5); }
+        50% { box-shadow: 0 0 20px rgba(0,238,255,0.4); }
+    }
+
+    .book-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .form-container {
+        padding: 3.5rem;
+    }
+
+    .form-section-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.2rem;
+        color: white;
+        margin: 2rem 0 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    .readonly-field {
+        opacity: 0.7;
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-style: dashed !important;
+    }
+
+    @media (max-width: 600px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .full-width {
+            grid-column: span 1;
+        }
+    }
+
+    /* ─ AI Date Alert ─ */
+    .date-ai-card {
+        background: rgba(245, 158, 11, 0.06);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 12px;
+        padding: 1.2rem 1.5rem;
+        margin-top: 0.8rem;
+        display: none;
+        animation: fade-in-ai 0.4s ease;
+    }
+    .date-ai-card.high {
+        border-color: rgba(255, 64, 129, 0.4);
+        background: rgba(255, 64, 129, 0.06);
+    }
+    .date-ai-card.low {
+        border-color: rgba(74, 222, 128, 0.4);
+        background: rgba(74, 222, 128, 0.06);
+    }
+    .ai-warning-item { font-size: 0.88rem; color: #fcd34d; margin-bottom: 0.4rem; }
+    .ai-tip-item { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+    .demand-pill {
+        display: inline-block;
+        padding: 0.25rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+    }
+
+    /* ─ Sentiment Tags ─ */
+    .sentiment-card {
+        background: rgba(0, 238, 255, 0.04);
+        border: 1px solid rgba(0, 238, 255, 0.15);
+        border-radius: 12px;
+        padding: 1.2rem 1.5rem;
+        margin-top: 0.8rem;
+        display: none;
+        animation: fade-in-ai 0.4s ease;
+    }
+    .ai-tag {
+        display: inline-block;
+        background: rgba(0, 238, 255, 0.1);
+        border: 1px solid rgba(0, 238, 255, 0.2);
+        color: var(--primary);
+        padding: 0.25rem 0.7rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 0.2rem;
+    }
+    .complexity-badge {
+        display: inline-block;
+        padding: 0.25rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-left: 0.5rem;
+    }
+    .ai-alert-msg {
+        color: #fcd34d;
+        font-size: 0.82rem;
+        margin-top: 0.4rem;
+    }
+
+    /* ─ AI Description Button ─ */
+    .ai-gen-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, rgba(147,51,234,0.2), rgba(0,238,255,0.1));
+        border: 1px solid rgba(147,51,234,0.4);
+        color: #c084fc;
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: 'Inter', sans-serif;
+        margin-bottom: 0.8rem;
+    }
+    .ai-gen-btn:hover {
+        background: rgba(147,51,234,0.25);
+        border-color: #c084fc;
+        transform: scale(1.02);
+    }
+    .ai-gen-btn .spin { display: none; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-gen-btn.loading .spin { display: inline; }
+    .ai-gen-btn.loading .icon { display: none; }
+
+    .ai-desc-preview {
+        background: rgba(147,51,234,0.05);
+        border: 1px solid rgba(147,51,234,0.2);
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin-bottom: 0.8rem;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        color: rgba(255,255,255,0.85);
+        display: none;
+        animation: fade-in-ai 0.4s ease;
+    }
+
+    @keyframes fade-in-ai {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="category-hero">
+    <div class="hero-text animate-fade-in">
+        <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 0;">Reservation Terminal</h1>
+    </div>
+</div>
+
+<div class="book-wrapper">
+
+    <!-- ─ AI REQUIREMENTS WIZARD ─ -->
+    <div class="ai-wizard animate-fade-in">
+        <div class="ai-wizard-header">
+            <div class="ai-avatar">🤖</div>
+            <div>
+                <div style="font-weight: 700; color: white; font-size: 1.05rem;">Eventer AI Planner</div>
+                <div style="font-size: 0.78rem; color: var(--primary);">⚡ Online — Ready to help plan your {{ title }} event</div>
+            </div>
+        </div>
+
+        <div class="ai-chat" id="aiChat">
+            <div class="ai-bubble">
+                👋 Hello! I'm your <strong>AI Event Planner</strong> for your <strong>{{ title }}</strong> at <strong>{{ location }}</strong>.
+                Let me help you figure out what you need! Could you tell me:
+                <br><br>
+                🎯 What's the <strong>theme or style</strong> you're imagining? (e.g., Royal, Modern, Minimalist...)
+            </div>
+        </div>
+
+        <!-- Quick-reply chips -->
+        <div class="wizard-suggestions" id="quickReplies">
+            {% if title == 'Marriage' %}
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">👑 Royal Indian Theme</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🌸 Floral Garden Theme</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🏖️ Beach Destination</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🕌 Traditional Religious</button>
+            {% elif title == 'Birthday' %}
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎉 Neon Party Vibe</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">👸 Princess/Royal Theme</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎮 Gaming Fest</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎪 Carnival Theme</button>
+            {% elif title == 'Fashion Show' %}
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">👗 Haute Couture Runway</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🌿 Eco/Sustainable Fashion</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎭 Avant-Garde Experimental</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">💍 Bridal Collection</button>
+            {% elif title == 'Sports' %}
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🏏 Cricket Tournament</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">⚽ Football League</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🏸 Badminton Open</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎽 Corporate Sports Day</button>
+            {% elif title == 'Festival' %}
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎵 Music & EDM Festival</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎨 Art & Culture Fair</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🍲 Food & Wine Festival</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🪔 Traditional Folk Festival</button>
+            {% elif title == 'Charity' %}
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎗️ Black-Tie Gala Dinner</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🖼️ Silent Art Auction</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🏃 Charity Marathon</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎶 Benefit Concert</button>
+            {% else %}
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🌟 Grand & Formal</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🧘 Relaxed & Casual</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">🎭 Creative & Unique</button>
+            <button class="suggest-chip" onclick="sendWizard(this.textContent)">💼 Professional & Corporate</button>
+            {% endif %}
+        </div>
+
+        <!-- AI Suggestion Output Box -->
+        <div class="ai-suggestion-section" id="aiSuggestionBox">
+            <h5>✨ AI Planning Recommendations</h5>
+            <ul class="suggestion-list" id="suggestionList"></ul>
+        </div>
+
+        <!-- User input -->
+        <div class="wizard-input-row">
+            <input type="text" id="wizardInput" placeholder="Type your requirement or question..." onkeydown="if(event.key==='Enter') sendWizard(document.getElementById('wizardInput').value)">
+            <button class="send-btn" onclick="sendWizard(document.getElementById('wizardInput').value)">➤</button>
+        </div>
+    </div>
+
+    <div class="book-header animate-fade-in">
+        <p>Book your exclusive experience at <strong>{{ location }}</strong></p>
+    </div>
+
+    <div class="glass-card form-container animate-fade-in">
+        <form method="POST" action="{{ url_for('book') }}">
+            <div class="form-section-title">Event Details</div>
+
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Event Category</label>
+                    <input type="text" name="title" value="{{ title }}" class="readonly-field" readonly>
+                </div>
+
+                <div class="input-group">
+                    <label>Assigned Venue</label>
+                    <input type="text" name="location" value="{{ location }}" class="readonly-field" readonly>
+                </div>
+
+                <div class="input-group">
+                    <label>Venue Capacity</label>
+                    <input type="text" id="capacity-field" name="capacity" value="{{ capacity }}" class="readonly-field"
+                        readonly>
+                </div>
+
+                <div class="full-width" id="moodSection" style="margin-top: 1rem;">
+                    <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.8rem;">🎭 AI Suggested Ambiance & Mood</div>
+                    <div id="moodTags" style="display: flex; flex-wrap: wrap; gap: 0.8rem;">
+                        <!-- AI Mood Tags will be injected here -->
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Preferred Date</label>
+                    <input type="date" name="date_booked" id="dateInput" required min="{{today}}" onchange="updateLivePrice()">
+                    <!-- AI Date Intelligence -->
+                    <div class="date-ai-card" id="dateAiCard">
+                        <div id="demandPill" class="demand-pill"></div>
+                        <div id="dateWarnings"></div>
+                        <div id="dateTips"></div>
+                    </div>
+                </div>
+
+                <div class="full-width">
+                    <div class="form-section-title" style="margin-top: 1rem;">Client Information</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" name="customer_name" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Contact Number</label>
+                    <input type="tel" name="contact_number" placeholder="+91 XXXXX XXXXX" required>
+                </div>
+
+                <div class="full-width">
+                    <div class="form-section-title" style="margin-top: 1rem;">Event Logistics</div>
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Number of Guests</label>
+                    <input type="number" id="guest-input" name="guests" min="2" required
+                        placeholder="Enter expected guest count" oninput="updateLivePrice()">
+                    <small id="capacity-warning" style="color: #ff4081; display: none; margin-top: 0.5rem;">Warning:
+                        Guest count exceeds venue capacity!</small>
+                </div>
+
+                <div class="full-width">
+                    <div class="form-section-title" style="margin-top: 1rem;">Premium Preferences</div>
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        {% if title == 'Marriage' %}Wedding Theme Color
+                        {% elif title == 'Birthday' %}Party Theme
+                        {% elif title == 'Corporate' %}Company Name
+                        {% else %}Event Purpose
+                        {% endif %}
+                    </label>
+                    <input type="text" name="event_extra" id="event_extra" placeholder="e.g. Royal Blue, Tech Gala, etc." required>
+                </div>
+
+                <div class="input-group">
+                    <label>Catering Services</label>
+                    <select name="catering" id="catering" required style="cursor: pointer; background: rgba(255,255,255,0.05);" onchange="updateLivePrice()">
+                        <option value="" style="background: #1a1a1a;">Select Option</option>
+                        <option value="Yes" style="background: #1a1a1a;">Yes, include premium catering (+25%)</option>
+                        <option value="No" style="background: #1a1a1a;">No, I will handle catering</option>
+                    </select>
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Special Requirements</label>
+                    <!-- AI Description Generator -->
+                    <button type="button" class="ai-gen-btn" id="genDescBtn" onclick="generateDescription()">
+                        <span class="icon">✨</span>
+                        <span class="spin">⟳</span>
+                        Generate Professional Description with AI
+                    </button>
+                    <div class="ai-desc-preview" id="aiDescPreview"></div>
+                    <textarea name="special_requirements" id="reqTextarea"
+                        placeholder="Tell us about dietary needs, accessibility requirements, or custom requests..."
+                        style="width: 100%; min-height: 100px; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; color: white;"
+                        oninput="analyzeRequirements(this.value)"></textarea>
+                    <!-- AI Sentiment Analysis -->
+                    <div class="sentiment-card" id="sentimentCard">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.8rem;">
+                            <span style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;">🧠 AI Analysis</span>
+                            <span class="complexity-badge" id="complexityBadge"></span>
+                        </div>
+                        <div id="autoTags" style="margin-bottom:0.5rem;"></div>
+                        <div id="sentimentAlerts"></div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Live Entertainment</label>
+                    <select name="entertainment" id="entertainment" required style="cursor: pointer; background: rgba(255,255,255,0.05);" onchange="updateLivePrice()">
+                        <option value="" style="background: #1a1a1a;">Select Option</option>
+                        <option value="Yes" style="background: #1a1a1a;">Yes, include entertainment package (+15%)</option>
+                        <option value="No" style="background: #1a1a1a;">No entertainment needed</option>
+                    </select>
+                </div>
+
+                <!-- Live Price Summary Card -->
+                <div class="full-width">
+                    <div class="glass-card" style="margin-top: 2rem; border-color: var(--primary); background: rgba(0, 238, 255, 0.03); padding: 1.5rem;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.2rem;">💰</span> Live Price Summary
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-dim);">Base Package ({{ title }})</span>
+                                <span id="price-base">₹0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-dim);">Guest Additions</span>
+                                <span id="price-guests">₹0</span>
+                            </div>
+                            <div id="price-dynamic-row" style="display: flex; justify-content: space-between; font-size: 0.9rem; display: none;">
+                                <span style="color: #fbbf24;">Dynamic Pricing Adj.</span>
+                                <span id="price-dynamic" style="color: #fbbf24;">+₹0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                <span style="color: var(--text-dim);">Add-ons (Catering/Music)</span>
+                                <span id="price-addons">₹0</span>
+                            </div>
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 700; color: white;">Estimated Total</span>
+                                <span id="price-total" style="font-size: 1.5rem; color: var(--primary); font-weight: 800;">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="full-width" style="margin-top: 2rem;">
+                    <button type="submit" class="btn-premium btn-primary" style="width: 100%; font-size: 1.1rem;" onclick="showVendorPanel()">
+                        Confirm Premium Reservation
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ─ VENDOR REQUIREMENTS PANEL ─ -->
+    <div class="vendor-panel" id="vendorPanel">
+        <div class="vendor-panel-inner">
+            <h4>🛍️ Recommended Vendor Checklist for Your {{ title }}</h4>
+            <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem;">Based on your event profile, here are the vendor categories you should confirm before your event date:</p>
+            <div class="vendor-grid" id="vendorGrid">
+                <!-- Populated by JS -->
+            </div>
+            <div style="margin-top: 1.5rem; padding: 1rem 1.2rem; background: rgba(0,238,255,0.04); border: 1px dashed rgba(0,238,255,0.2); border-radius: 12px; font-size: 0.85rem; color: var(--text-dim);">
+                💡 Our coordination team will contact you within 24 hours to connect you with verified vendors from our network.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const guestInput = document.getElementById('guest-input');
+    const capacityField = document.getElementById('capacity-field');
+    const warning = document.getElementById('capacity-warning');
+    const capacity = parseInt(capacityField.value);
+
+    guestInput.addEventListener('input', () => {
+        const guests = parseInt(guestInput.value);
+        if (guests > capacity) {
+            warning.style.display = 'block';
+        } else {
+            warning.style.display = 'none';
+        }
+    });
+
+    document.querySelector("form").onsubmit = function (e) {
+        const guests = parseInt(guestInput.value);
+        if (guests > capacity) {
+            alert("Guests cannot exceed venue capacity! Please reduce the guest count or choose a larger venue.");
+            e.preventDefault();
+        }
+    };
+
+    /* ─ Live Price Engine (Frontend Mirror of Backend Logic) ─ */
+    let lastIntelligence = null;
+
+    function updateLivePrice() {
+        const title = document.querySelector('[name="title"]').value;
+        const guests = parseInt(document.getElementById('guest-input').value) || 0;
+        const dateVal = document.getElementById('dateInput').value;
+        const catering = document.getElementById('catering').value;
+        const entertainment = document.getElementById('entertainment').value;
+
+        // 1. Base Price
+        let basePackage = 50000;
+        if (title === 'Marriage') basePackage = 150000;
+        else if (title === 'Corporate') basePackage = 80000;
+        else if (title === 'Birthday') basePackage = 50000;
+        else if (title === 'Fashion Show') basePackage = 120000;
+        else if (title === 'Sports') basePackage = 100000;
+        else if (title === 'Festival') basePackage = 90000;
+        else if (title === 'Charity') basePackage = 60000;
+
+        document.getElementById('price-base').textContent = `₹${basePackage.toLocaleString()}`;
+
+        // 2. Guest Cost
+        let guestCost = guests * 250;
+        document.getElementById('price-guests').textContent = `₹${guestCost.toLocaleString()}`;
+
+        // 3. Dynamic Adjustments (Season, Weekend, Demand)
+        let multiplier = 1.0;
+        if (dateVal) {
+            const dt = new Date(dateVal);
+            // Weekend check (5=Sat, 6=Sun, 4=Fri in many cultures, but JS is 0=Sun, 1=Mon... 5=Fri, 6=Sat)
+            const day = dt.getDay(); 
+            if (day === 0 || day === 5 || day === 6) multiplier += 0.15;
+
+            // Season check (10=Nov, 11=Dec, 0=Jan, 1=Feb)
+            const month = dt.getMonth();
+            if ([10, 11, 0, 1].includes(month)) multiplier += 0.10;
+
+            // AI Intelligence (from last fetch)
+            if (lastIntelligence) {
+                if (lastIntelligence.is_holiday) multiplier += 0.20;
+                if (lastIntelligence.demand_level === 'Very High') multiplier += 0.30;
+                else if (lastIntelligence.demand_level === 'High') multiplier += 0.15;
+            }
+        }
+
+        let totalBeforeAddons = (basePackage + guestCost) * multiplier;
+        let dynamicAdj = totalBeforeAddons - (basePackage + guestCost);
+        
+        const dynRow = document.getElementById('price-dynamic-row');
+        if (dynamicAdj > 0) {
+            dynRow.style.display = 'flex';
+            document.getElementById('price-dynamic').textContent = `+₹${Math.round(dynamicAdj).toLocaleString()}`;
+        } else {
+            dynRow.style.display = 'none';
+        }
+
+        // 4. Add-ons
+        let finalTotal = totalBeforeAddons;
+        let addonCost = 0;
+        if (catering === 'Yes') {
+            addonCost += (finalTotal * 0.25);
+        }
+        if (entertainment === 'Yes') {
+            addonCost += (finalTotal * 0.15);
+        }
+        finalTotal += addonCost;
+
+        document.getElementById('price-addons').textContent = `₹${Math.round(addonCost).toLocaleString()}`;
+        document.getElementById('price-total').textContent = `₹${Math.round(finalTotal).toLocaleString()}`;
+    }
+
+    /* ─ AI: Smart Date Conflict Detector ─ */
+    let dateDebounce;
+    document.getElementById('dateInput').addEventListener('change', function() {
+        clearTimeout(dateDebounce);
+        const dateVal = this.value;
+        if (!dateVal) return;
+        dateDebounce = setTimeout(() => checkDateIntelligence(dateVal), 300);
+    });
+
+    async function checkDateIntelligence(dateVal) {
+        try {
+            const resp = await fetch('/api/ai/check-date', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date: dateVal })
+            });
+            const data = await resp.json();
+            lastIntelligence = data; // Store for price calculation
+            
+            const card = document.getElementById('dateAiCard');
+            card.style.display = 'block';
+            card.className = 'date-ai-card';
+
+            // Demand pill
+            const pill = document.getElementById('demandPill');
+            pill.textContent = `🔥 ${data.demand_level} Demand`;
+            pill.style.background = `${data.demand_color}22`;
+            pill.style.border = `1px solid ${data.demand_color}55`;
+            pill.style.color = data.demand_color;
+
+            // Warnings
+            const warnDiv = document.getElementById('dateWarnings');
+            warnDiv.innerHTML = data.warnings.map(w => `<div class="ai-warning-item">${w}</div>`).join('');
+
+            // Tips
+            const tipDiv = document.getElementById('dateTips');
+            tipDiv.innerHTML = data.tips.map(t => `<div class="ai-tip-item">${t}</div>`).join('');
+
+            if (data.demand_level === 'Very High') card.classList.add('high');
+            else if (data.demand_level === 'Low' || data.demand_level === 'Moderate') card.classList.add('low');
+            
+            // Trigger price update after intelligence is received
+            updateLivePrice();
+        } catch(e) {
+            console.warn('Date check failed:', e);
+        }
+    }
+
+    /* ─ AI: Sentiment / Tag Analysis ─ */
+    let sentDebounce;
+    function analyzeRequirements(text) {
+        clearTimeout(sentDebounce);
+        if (text.length < 5) {
+            document.getElementById('sentimentCard').style.display = 'none';
+            return;
+        }
+        sentDebounce = setTimeout(() => doAnalyze(text), 600);
+    }
+
+    async function doAnalyze(text) {
+        try {
+            const resp = await fetch('/api/ai/analyze-requirements', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            const data = await resp.json();
+            const card = document.getElementById('sentimentCard');
+            card.style.display = 'block';
+
+            // Complexity badge
+            const badge = document.getElementById('complexityBadge');
+            badge.textContent = data.complexity;
+            badge.style.background = `${data.complexity_color}22`;
+            badge.style.border = `1px solid ${data.complexity_color}44`;
+            badge.style.color = data.complexity_color;
+
+            // Auto tags
+            const tagsDiv = document.getElementById('autoTags');
+            if (data.tags.length > 0) {
+                tagsDiv.innerHTML = data.tags.map(t => `<span class="ai-tag">${t}</span>`).join('');
+            } else {
+                tagsDiv.innerHTML = '<span style="font-size:0.82rem;color:var(--text-dim);">No specific tags detected yet</span>';
+            }
+
+            // Alerts
+            const alertsDiv = document.getElementById('sentimentAlerts');
+            alertsDiv.innerHTML = data.alerts.map(a => `<div class="ai-alert-msg">${a}</div>`).join('');
+        } catch(e) {
+            console.warn('Sentiment analysis failed:', e);
+        }
+    }
+
+    /* ─ AI: Description Generator ─ */
+    async function generateDescription() {
+        const btn = document.getElementById('genDescBtn');
+        btn.classList.add('loading');
+
+        const eventType = document.querySelector('[name="title"]')?.value || 'Marriage';
+        const location = document.querySelector('[name="location"]')?.value || 'our venue';
+        const capacity = document.querySelector('[name="capacity"]')?.value || 100;
+        const extra = document.querySelector('[name="event_extra"]')?.value || '';
+
+        try {
+            const resp = await fetch('/api/ai/generate-description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    event_type: eventType,
+                    location: location,
+                    guests: parseInt(capacity),
+                    extra: extra
+                })
+            });
+            const data = await resp.json();
+            const preview = document.getElementById('aiDescPreview');
+            preview.style.display = 'block';
+            preview.innerHTML = `<strong style="color:var(--primary);font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;">✨ AI Generated Description</strong><br><br>${data.description}`;
+
+            // Paste into textarea option
+            const textarea = document.getElementById('reqTextarea');
+            textarea.placeholder = 'You can paste the AI description above into this field or write your own...';
+        } catch(e) {
+            console.warn('Description generation failed:', e);
+        } finally {
+            btn.classList.remove('loading');
+        }
+    }
+
+    /* ─ AI: Venue Mood Analyzer ─ */
+    async function getVenueMood() {
+        const location = document.querySelector('[name="location"]')?.value || '';
+        const eventType = document.querySelector('[name="title"]')?.value || '';
+        
+        try {
+            const resp = await fetch('/api/ai/venue-mood', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ location, event_type: eventType })
+            });
+            const data = await resp.json();
+            const tagsDiv = document.getElementById('moodTags');
+            tagsDiv.innerHTML = data.tags.map(t => `
+                <div class="glass-card animate-fade-in" style="padding: 0.6rem 1.2rem; background: rgba(0, 238, 255, 0.04); border: 1px solid rgba(0, 238, 255, 0.2); border-radius: 50px; font-size: 0.85rem; color: white;">
+                    ${t}
+                </div>
+            `).join('');
+        } catch(e) {
+            console.warn('Mood analyzer failed:', e);
+        }
+    }
+
+
+    /* ─ AI Requirements Wizard Logic ─ */
+    const eventTypeResources = {
+        'Marriage': {
+            vendors: [
+                { icon: '📸', name: 'Wedding Photographer', desc: 'Pre/post wedding & ceremony coverage' },
+                { icon: '💐', name: 'Floral Decorator', desc: 'Mandap, stage, table & aisle design' },
+                { icon: '🍽️', name: 'Catering Service', desc: 'Multi-cuisine menu for guests' },
+                { icon: '🎻', name: 'Live Band / DJ', desc: 'Sangeet & reception entertainment' },
+                { icon: '🧖', name: 'Bridal Makeup Artist', desc: 'Bride, groom & family grooming' },
+                { icon: '🚌', name: 'Guest Transport', desc: 'Buses, cars & driver coordination' },
+            ]
+        },
+        'Birthday': {
+            vendors: [
+                { icon: '🎂', name: 'Custom Cake Baker', desc: 'Themed multi-tier cake & desserts' },
+                { icon: '🎈', name: 'Balloon Decorator', desc: 'Arch, wall & ceiling decorations' },
+                { icon: '📸', name: 'Event Photographer', desc: 'Candid & portrait photography' },
+                { icon: '🎤', name: 'Anchor / Emcee', desc: 'Game hosting & entertainment' },
+                { icon: '🍕', name: 'Food & Snacks', desc: 'Birthday dinner / buffet catering' },
+                { icon: '🎁', name: 'Return Gift Vendor', desc: 'Customized gifts for all guests' },
+            ]
+        },
+        'Fashion Show': {
+            vendors: [
+                { icon: '💡', name: 'Lighting Technician', desc: 'Runway LED & spotlight setup' },
+                { icon: '🎧', name: 'Sound Engineer', desc: 'Crystal-clear audio for the ramp' },
+                { icon: '💄', name: 'Makeup Artist Team', desc: 'Model hair, makeup & styling' },
+                { icon: '📸', name: 'Fashion Photographer', desc: 'Runway & backstage coverage' },
+                { icon: '🎬', name: 'Videographer', desc: 'Full HD show recording' },
+                { icon: '🛡️', name: 'Security Team', desc: 'Guest access & backstage control' },
+            ]
+        },
+        'Sports': {
+            vendors: [
+                { icon: '🏟️', name: 'Ground Setup Crew', desc: 'Pitch prep, goal posts & netting' },
+                { icon: '🎤', name: 'Commentary Team', desc: 'Live match commentary & score updates' },
+                { icon: '🚑', name: 'Medical Support', desc: 'On-site first aid & ambulance' },
+                { icon: '📡', name: 'Live Streaming Tech', desc: 'HD camera & streaming equipment' },
+                { icon: '🍔', name: 'Fan Zone Catering', desc: 'Stalls, food courts & beverages' },
+                { icon: '🏅', name: 'Trophy & Awards', desc: 'Custom medals, trophies & certificates' },
+            ]
+        },
+        'Festival': {
+            vendors: [
+                { icon: '🎸', name: 'Stage & Sound', desc: 'Main stage PA system & backline' },
+                { icon: '💡', name: 'Lighting & VFX', desc: 'LED walls, lasers & projection' },
+                { icon: '🛒', name: 'Vendor Stall Setup', desc: 'Market stalls & food courts' },
+                { icon: '🎆', name: 'Pyrotechnics', desc: 'Fireworks & fire effects team' },
+                { icon: '🚽', name: 'Sanitation Services', desc: 'Portable loos & cleaning crew' },
+                { icon: '🔒', name: 'Security & Crowd', desc: 'Bouncers & entry management' },
+            ]
+        },
+        'Charity': {
+            vendors: [
+                { icon: '🎙️', name: 'Auctioneer / Host', desc: 'Experienced charity event host' },
+                { icon: '📺', name: 'AV & Presentation', desc: 'Projectors, mics & display screens' },
+                { icon: '🍽️', name: 'Gala Catering', desc: 'Formal dinner & cocktail service' },
+                { icon: '🖼️', name: 'Art Curator', desc: 'Silent auction item display' },
+                { icon: '💳', name: 'Payment Gateway', desc: 'Online & on-site donation system' },
+                { icon: '📸', name: 'Event Photographer', desc: 'Donor recognition & PR coverage' },
+            ]
+        },
+        'default': {
+            vendors: [
+                { icon: '📸', name: 'Photographer / Videographer', desc: 'Event documentation & memories' },
+                { icon: '🍽️', name: 'Catering Team', desc: 'Food & beverage management' },
+                { icon: '🎤', name: 'Emcee / Host', desc: 'Ceremony facilitation' },
+                { icon: '💡', name: 'AV & Lighting', desc: 'Audiovisual technical support' },
+                { icon: '🌸', name: 'Decorator', desc: 'Venue setup & theming' },
+                { icon: '🚌', name: 'Guest Transport', desc: 'Attendee logistics' },
+            ]
+        }
+    };
+
+    function showVendorPanel() {
+        const panel = document.getElementById('vendorPanel');
+        const grid = document.getElementById('vendorGrid');
+        const title = document.querySelector('[name="title"]')?.value || 'default';
+        const config = eventTypeResources[title] || eventTypeResources['default'];
+        grid.innerHTML = config.vendors.map(v => `
+            <div class="vendor-chip">
+                <span class="v-icon">${v.icon}</span>
+                <h6>${v.name}</h6>
+                <p>${v.desc}</p>
+            </div>
+        `).join('');
+        panel.style.display = 'block';
+        setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+    }
+
+    // AI Wizard logic
+    const wizardKB = {
+        'Royal Indian Theme': ['💍 Ornate floral mandap with marigold curtains', '👗 Traditional shehnai + dhol for the baraat', '🍛 Multi-cuisine buffet with live chaat & mithai counters', '📸 Cinematic pre-wedding shoot at heritage site', '🎆 Grand fireworks finale at vidaai'],
+        'Floral Garden Theme': ['🌸 Pastel floral arch & table centerpieces', '🦋 Butterfly-themed stationery & invites', '🍷 Open bar & aperitivo garden section', '🎻 String quartet for ceremony', '📸 Golden hour portrait session'],
+        'Beach Destination': ['🏖️ Bamboo mandap on the shoreline', '🌅 Sunset timing for ceremony & reception', '🐚 Seashell & drift-wood decor elements', '🎸 Live acoustic band for the evening', '🤿 Fun beach activities for guests'],
+        'Neon Party Vibe': ['🌈 UV reactive decor & neon signs', '🎮 Gaming lounge zone for guests', '🍕 Midnight snack station with pizza & sliders', '🎧 DJ with custom party drops', '📸 Neon photo booth with props'],
+        'Haute Couture Runway': ['💺 Theatre-style seating for 300+', '💡 Moving-head spotlight rigs on the runway', '🎧 High-energy fashion music playlist', '💄 Backstage glam studio for 20+ models', '📸 Press pit with official photographers'],
+        'Cricket Tournament': ['🏏 Pitch preparation & crease marking crew', '📡 Jumbotron or projector for live scores', '🎤 Stadium-style commentary setup', '🍔 Fan zone with food & merch stalls', '🏅 Trophy & certificates for winners'],
+        'Music & EDM Festival': ['🎸 Main stage + 2 side stages', '💡 Laser light show & LED pixel mapping', '🚷 Crowd management barriers & wristbands', '🍺 Licensed bar & food stall ecosystem', '🎆 Midnight pyrotechnic display']
+    };
+
+    function sendWizard(msg) {
+        if (!msg || msg.trim() === '') return;
+        const chat = document.getElementById('aiChat');
+        const input = document.getElementById('wizardInput');
+        // User bubble
+        const userBubble = document.createElement('div');
+        userBubble.className = 'user-bubble';
+        userBubble.textContent = msg.trim();
+        chat.appendChild(userBubble);
+        input.value = '';
+        chat.scrollTop = chat.scrollHeight;
+        // Typing indicator
+        const typing = document.createElement('div');
+        typing.className = 'ai-bubble';
+        typing.innerHTML = '<span style="color:var(--primary)">⟳ Planning your perfect event...</span>';
+        chat.appendChild(typing);
+        chat.scrollTop = chat.scrollHeight;
+        setTimeout(() => {
+            typing.remove();
+            const suggestions = wizardKB[msg.trim()] || generateGenericSuggestions(msg.trim());
+            const reply = document.createElement('div');
+            reply.className = 'ai-bubble';
+            reply.innerHTML = `Great choice! 🎉 Here are my <strong>AI planning recommendations</strong> based on your "${msg.trim()}" theme:`;
+            chat.appendChild(reply);
+            const box = document.getElementById('aiSuggestionBox');
+            const list = document.getElementById('suggestionList');
+            list.innerHTML = suggestions.map(s => `<li>${s}</li>`).join('');
+            box.style.display = 'block';
+            chat.scrollTop = chat.scrollHeight;
+            // Auto-fill event_extra
+            const extra = document.querySelector('[name="event_extra"]');
+            if (extra && extra.value === '') extra.value = msg.trim();
+        }, 1200);
+    }
+
+    function generateGenericSuggestions(theme) {
+        const eventType = document.querySelector('[name="title"]')?.value || '';
+        return [
+            `🎨 Design your ${eventType} décor around the "${theme}" concept`,
+            `📋 Brief your vendor team on the ${theme} color palette & mood`,
+            `💡 Ensure lighting complements the ${theme} atmosphere`,
+            `🍽️ Curate a menu that aligns with the ${theme} experience`,
+            `📸 Plan key photo moments highlighting the ${theme} elements`,
+            `🎵 Select background music or playlist matching the ${theme} vibe`
+        ];
+    }
+
+    // Call on load
+    document.addEventListener('DOMContentLoaded', getVenueMood);
+</script>
+{% endblock %}

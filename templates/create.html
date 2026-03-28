@@ -1,0 +1,263 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .create-wrapper {
+        min-height: 100vh;
+        background: linear-gradient(to bottom, rgba(10, 10, 15, 0.4), rgba(8, 8, 8, 0.6));
+    }
+
+    .create-hero {
+        height: 50vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(10, 10, 15, 1)),
+        url("{{ url_for('static', filename='image/landing_hero.png') }}");
+        background-size: cover;
+        background-position: center;
+        margin-top: -120px;
+        margin-bottom: 4rem;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(3rem, 8vw, 5rem);
+        margin-bottom: 1rem;
+    }
+
+    .create-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem 8rem;
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
+        margin-bottom: 6rem;
+    }
+
+    .category-card {
+        height: 480px;
+        position: relative;
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        display: block;
+        text-decoration: none;
+    }
+
+    .category-card:hover {
+        transform: translateY(-15px);
+        border-color: var(--primary);
+    }
+
+    .category-bg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+
+    .category-card:hover .category-bg {
+        transform: scale(1.1);
+    }
+
+    .category-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.2) 60%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 2.5rem;
+        transition: background 0.4s ease;
+    }
+
+    .category-card:hover .category-overlay {
+        background: linear-gradient(to top, rgba(0, 238, 255, 0.3) 0%, rgba(0, 0, 0, 0.4) 100%);
+    }
+
+    .category-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .category-card h3 {
+        font-size: 1.8rem;
+        color: white;
+        margin-bottom: 0.8rem;
+    }
+
+    .category-card p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    /* Pro Features Section */
+    .pro-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 3rem;
+        padding: 6rem 3rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 40px;
+        margin-top: 4rem;
+    }
+
+    .feature-item {
+        text-align: center;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        display: inline-block;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .feature-item h4 {
+        color: white;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-item p {
+        color: var(--text-dim);
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="create-wrapper">
+    <div class="create-hero">
+        <div class="hero-content animate-fade-in">
+            <h1 class="gradient-text">Design Your Masterpiece</h1>
+            <p style="color: var(--text-dim); font-size: 1.2rem;">Select a category to start your premium planning
+                experience.</p>
+        </div>
+    </div>
+
+    <div class="create-container">
+        <div class="category-grid">
+            <a href="{{ url_for('marriage') }}" class="category-card animate-fade-in">
+                <img src="{{ url_for('static', filename='image/wedding_bg_rings.png') }}" class="category-bg"
+                    alt="Weddings">
+                <div class="category-overlay">
+                    <span class="category-icon">💍</span>
+                    <h3>Luxury Weddings</h3>
+                    <p>Experience the pinnacle of elegance and romance. From grand ballrooms to intimate garden
+                        ceremonies, we make your dream day a reality.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('birthday') }}" class="category-card animate-fade-in" style="animation-delay: 0.1s;">
+                <img src="{{ url_for('static', filename='image/birthday.png') }}" class="category-bg" alt="Birthdays">
+                <div class="category-overlay">
+                    <span class="category-icon">🎂</span>
+                    <h3>Grand Birthdays</h3>
+                    <p>Celebrate life's milestones with vibrant themes and professional coordination. Whether it's a
+                        sweet sixteen or a diamond jubilee.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('corporate') }}" class="category-card animate-fade-in" style="animation-delay: 0.2s;">
+                <img src="{{ url_for('static', filename='image/corporate.png') }}" class="category-bg" alt="Corporate">
+                <div class="category-overlay">
+                    <span class="category-icon">🏢</span>
+                    <h3>Corporate Galas</h3>
+                    <p>Sophisticated networking events and high-production company galas. We handle the logistics so you
+                        can focus on the connections.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('meetup') }}" class="category-card animate-fade-in" style="animation-delay: 0.3s;">
+                <img src="{{ url_for('static', filename='image/concert.png') }}" class="category-bg" alt="Meetups">
+                <div class="category-overlay">
+                    <span class="category-icon">🤝</span>
+                    <h3>Exclusive Meetups</h3>
+                    <p>Curated social experiences and community gatherings. Perfect for product launches, workshops, or
+                        high-end social mixers.</p>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('fashion_show') }}" class="category-card animate-fade-in" style="animation-delay: 0.4s;">
+                <img src="{{ url_for('static', filename='image/fashion_bg.png') }}" onerror="this.src='{{ url_for('static', filename='image/landing_hero.png') }}'" class="category-bg" alt="Fashion Shows">
+                <div class="category-overlay">
+                    <span class="category-icon">👗</span>
+                    <h3>Fashion Shows</h3>
+                    <p>High-end runway events with cutting-edge lighting and staging to showcase your collections to elite audiences.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('sports') }}" class="category-card animate-fade-in" style="animation-delay: 0.5s;">
+                <img src="{{ url_for('static', filename='image/sports_bg.png') }}" onerror="this.src='{{ url_for('static', filename='image/landing_hero.png') }}'" class="category-bg" alt="Sports Tournaments">
+                <div class="category-overlay">
+                    <span class="category-icon">🏆</span>
+                    <h3>Sports Tournaments</h3>
+                    <p>Action-packed sporting events with perfect coordination and logistical support for athletes and fans.</p>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('festival') }}" class="category-card animate-fade-in" style="animation-delay: 0.6s;">
+                <img src="{{ url_for('static', filename='image/festival_bg.png') }}" onerror="this.src='{{ url_for('static', filename='image/landing_hero.png') }}'" class="category-bg" alt="Festivals">
+                <div class="category-overlay">
+                    <span class="category-icon">🎪</span>
+                    <h3>Cultural Festivals</h3>
+                    <p>Large-scale dynamic festivals with immersive experiences, multiple stages, and premium vendor coordination.</p>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('charity') }}" class="category-card animate-fade-in" style="animation-delay: 0.7s;">
+                <img src="{{ url_for('static', filename='image/charity_bg.png') }}" onerror="this.src='{{ url_for('static', filename='image/landing_hero.png') }}'" class="category-bg" alt="Charity Galas">
+                <div class="category-overlay">
+                    <span class="category-icon">🎗️</span>
+                    <h3>Charity Galas</h3>
+                    <p>Elegant fundraising events designed to inspire your donors and maximize your charitable impact.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="pro-features animate-fade-in">
+            <div class="feature-item">
+                <span class="feature-icon">📊</span>
+                <h4>AI Budgeting</h4>
+                <p>Precise cost predictions powered by our proprietary machine learning models.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✨</span>
+                <h4>Elite Venues</h4>
+                <p>Access to handpicked locations that aren't available on any other platform.</p>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🛡️</span>
+                <h4>Secure Planning</h4>
+                <p>Your data and deposits are protected with our multi-layer security system.</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 6rem; text-align: center;" class="animate-fade-in">
+            <h2 style="margin-bottom: 2rem;">Ready to See the Future?</h2>
+            <div style="display: flex; gap: 2rem; justify-content: center;">
+                <a href="{{ url_for('predict_price') }}" class="btn-premium btn-primary">
+                    Try Smart Predictor
+                </a>
+                <a href="{{ url_for('mybookings') }}" class="btn-premium btn-outline">
+                    Check My Portfolio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

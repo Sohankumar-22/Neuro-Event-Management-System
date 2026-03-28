@@ -1,0 +1,231 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .page-wrapper {
+        min-height: 100vh;
+        padding-bottom: 8rem;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .category-hero {
+        height: 65vh;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(8,8,16,1) 100%),
+                    url("{{ hero_image }}");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 120px;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        padding: 0.4rem 1.2rem;
+        border-radius: 50px;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .hero-text { text-align: center; z-index: 2; }
+    .hero-text h1 { font-size: clamp(3rem, 9vw, 5.5rem); margin-bottom: 0.5rem; }
+
+    .section-header {
+        max-width: 1400px;
+        margin: 0 auto 2.5rem;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .section-header h2 { font-size: 1.8rem; }
+    .venue-count {
+        background: rgba(0,238,255,0.1);
+        border: 1px solid rgba(0,238,255,0.2);
+        color: var(--primary);
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .events-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .event-card {
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 20px;
+        position: relative;
+    }
+    .event-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary);
+        box-shadow: 0 20px 50px rgba(0,238,255,0.1);
+    }
+
+    .event-image-container {
+        width: 100%;
+        height: 220px;
+        overflow: hidden;
+        position: relative;
+    }
+    .event-image {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+    .event-card:hover .event-image { transform: scale(1.08); }
+
+    .capacity-badge {
+        position: absolute;
+        bottom: 1rem; left: 1rem;
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.15);
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        color: white;
+    }
+
+    .event-content {
+        padding: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .event-content h3 {
+        font-size: 1.25rem;
+        color: white;
+        margin-bottom: 0.3rem;
+    }
+    .venue-city {
+        font-size: 0.82rem;
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        letter-spacing: 1px;
+    }
+    .event-description {
+        font-size: 0.9rem;
+        color: var(--text-dim);
+        line-height: 1.6;
+        flex-grow: 1;
+        margin-bottom: 1.5rem;
+        font-style: italic;
+    }
+    .book-btn {
+        width: 100%;
+        text-align: center;
+        padding: 0.9rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        background: linear-gradient(135deg, var(--primary), #9333ea);
+        color: #000;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: block;
+    }
+    .book-btn:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(0,238,255,0.3);
+    }
+
+    /* Highlights strip */
+    .highlights-strip {
+        max-width: 1400px;
+        margin: 0 auto 3rem;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+        gap: 1.5rem;
+    }
+    .highlight-pill {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .highlight-pill .emoji { font-size: 2rem; margin-bottom: 0.8rem; display: block; }
+    .highlight-pill h5 { color: white; margin-bottom: 0.4rem; }
+    .highlight-pill p { font-size: 0.82rem; color: var(--text-dim); }
+
+    @media(max-width:600px) {
+        .events-container { grid-template-columns: 1fr; }
+        .highlights-strip { grid-template-columns: 1fr 1fr; }
+    }
+</style>
+
+<div class="page-wrapper">
+    <!-- Hero -->
+    <div class="category-hero">
+        <div class="hero-text animate-fade-in">
+            <div class="hero-badge">{{ category_label }}</div>
+            <h1 class="gradient-text">{{ hero_title }}</h1>
+            <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; max-width: 600px; margin: 0.5rem auto 0;">{{ hero_subtitle }}</p>
+        </div>
+    </div>
+
+    <!-- Key Highlights -->
+    <div class="highlights-strip">
+        {% for h in highlights %}
+        <div class="highlight-pill glass-card animate-fade-in">
+            <span class="emoji">{{ h.icon }}</span>
+            <h5>{{ h.title }}</h5>
+            <p>{{ h.desc }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Venue Count Header -->
+    <div class="section-header">
+        <h2>Available <span class="gradient-text">Venues</span></h2>
+        <span class="venue-count">{{ events|length }} Premium Locations</span>
+    </div>
+
+    <!-- Venue Cards -->
+    <div class="events-container">
+        {% for event in events %}
+        <div class="glass-card event-card animate-fade-in">
+            <div class="event-image-container">
+                <img src="{{ url_for('static', filename='image/' + event.image) }}"
+                     onerror="this.src='{{ url_for('static', filename='image/landing_hero.png') }}'"
+                     alt="{{ event.location }}" class="event-image">
+                <div class="capacity-badge">👥 Up to {{ event.capacity }}</div>
+            </div>
+            <div class="event-content">
+                <h3>{{ event.location.split(',')[0] }}</h3>
+                <div class="venue-city">📍 {{ event.location.split(',')[1].strip() if ',' in event.location else event.location }}</div>
+                <p class="event-description">"{{ event.description }}"</p>
+                <a href="{{ url_for('book', title=event.title, location=event.location, capacity=event.capacity) }}"
+                   class="book-btn">
+                    Reserve This Venue →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

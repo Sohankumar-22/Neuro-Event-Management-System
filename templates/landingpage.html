@@ -1,0 +1,423 @@
+{% extends "layout.html" %}
+
+{% block body_class %}landing-page-theme{% endblock %}
+
+{% block extra_css %}
+<style>
+    .landing-page-theme {
+        background: #020617;
+        /* Extra deep navy */
+    }
+</style>
+{% endblock %}
+{% block content %}
+<style>
+    main {
+        padding-top: 0 !important;
+        /* Allow hero to bleed into header */
+    }
+
+    .hero-section {
+        position: relative;
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #000;
+        padding-top: 80px;
+    }
+
+    .video-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .video-background video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+        z-index: 2;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 3;
+        text-align: center;
+        max-width: 900px;
+        padding: 0 2rem;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        line-height: 1.1;
+        margin-bottom: 2rem;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .hero-content p {
+        font-size: clamp(1.1rem, 2vw, 1.4rem);
+        color: var(--text-dim);
+        margin-bottom: 3rem;
+        max-width: 600px;
+        margin-inline: auto;
+    }
+
+    .sections-wrapper {
+        background: var(--bg-body);
+        position: relative;
+    }
+
+    .sections-wrapper::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
+
+    /* Categories Section */
+    .section-padding {
+        padding: 10rem 4rem;
+        max-width: 1880px;
+        margin: 0 auto;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+
+    .section-title h2 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .category-card {
+        position: relative;
+        height: 450px;
+        border-radius: 24px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 1px solid var(--border);
+    }
+
+    .category-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .category-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 60%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 2.5rem;
+        transition: var(--transition);
+    }
+
+    .category-card:hover .category-image {
+        transform: scale(1.1);
+    }
+
+    .category-card:hover .category-overlay {
+        background: linear-gradient(to top, var(--secondary) 0%, transparent 100%);
+        opacity: 0.9;
+    }
+
+    .category-card h3 {
+        font-size: 1.8rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .category-card p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .category-card:hover p {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    /* Features Section */
+    .features {
+        background: rgba(255, 255, 255, 0.01);
+        padding: 10rem 4rem;
+    }
+
+    .features-grid {
+        max-width: 1880px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 4rem;
+    }
+
+    .feature-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        text-align: center;
+        transition: var(--transition);
+        backdrop-filter: blur(10px);
+    }
+
+    .feature-item:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--primary);
+        box-shadow: 0 10px 40px rgba(0, 238, 255, 0.1);
+    }
+
+    .feature-item h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: white;
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(0, 238, 255, 0.1);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 2rem;
+        color: var(--primary);
+        border: 1px solid rgba(0, 238, 255, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .category-card {
+            height: 350px;
+        }
+    }
+</style>
+
+<section class="hero-section" style="background: var(--bg-body);">
+    <div class="video-background">
+        <video autoplay muted loop playsinline>
+            <source src="{{ url_for('static', filename='video/background.mp4') }}" type="video/mp4">
+        </video>
+    </div>
+    <div class="video-overlay"
+        style="background: linear-gradient(180deg, rgba(5,5,5,0.3) 0%, rgba(5,5,5,0.95) 100%), radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%);"></div>
+
+    <div class="hero-content animate-fade-in" style="max-width: 1200px; text-align: center; z-index: 10;">
+        <div
+            style="display: inline-block; padding: 0.5rem 3rem; border: 1px solid var(--primary); color: var(--primary); background: rgba(212, 175, 55, 0.05); font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 3rem; border-radius: 50px;">
+            A Masterpiece by Sohan Kumar Swain
+        </div>
+        <h1
+            style="font-family: 'Playfair Display', serif; font-size: clamp(4rem, 8vw, 7.5rem); color: white; margin-bottom: 1.5rem; text-transform: none; letter-spacing: -1px; text-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+            The Art of <span style="color: var(--primary); font-style: italic;">Luxury</span> Events</h1>
+        <p
+            style="font-family: 'Inter', sans-serif; font-size: 1.4rem; color: #d1d5db; letter-spacing: 1px; max-width: 800px; margin: 0 auto 4rem; font-weight: 300; line-height: 1.8;">
+            Eventer orchestrates unforgettable, premium experiences through sophisticated AI intelligence and an unparalleled pursuit of perfection.</p>
+
+        <div style="display: flex; gap: 2.5rem; justify-content: center;">
+            <a href="{{ url_for('create') }}" class="btn-premium"
+                style="background: var(--primary); color: #050505; border: 1px solid var(--primary); padding: 1.2rem 4rem; font-size: 1.1rem; border-radius: 5px; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);">PLAN
+                AN EVENT</a>
+            <a href="{{ url_for('about') }}" class="btn-premium"
+                style="background: transparent; border: 1px solid rgba(255,255,255,0.5); color: white; padding: 1.2rem 4rem; font-size: 1.1rem; border-radius: 5px; font-weight: 700; transition: all 0.3s ease;">OUR
+                SERVICES</a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section style="padding: 8rem 4rem; background: #080c14; border-top: 1px solid rgba(197, 160, 89, 0.1);">
+    <div
+        style="max-width: 1600px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4rem; text-align: center;">
+        <div class="animate-fade-in">
+            <h2
+                style="font-size: 4.5rem; color: var(--primary); margin-bottom: 0.5rem; font-family: 'Playfair Display', serif;">
+                500+</h2>
+            <p style="color: #94a3b8; text-transform: uppercase; letter-spacing: 5px; font-size: 0.75rem;">Exclusive
+                Galas</p>
+        </div>
+        <div class="animate-fade-in" style="animation-delay: 0.1s;">
+            <h2
+                style="font-size: 4.5rem; color: var(--primary); margin-bottom: 0.5rem; font-family: 'Playfair Display', serif;">
+                32k+</h2>
+            <p style="color: #94a3b8; text-transform: uppercase; letter-spacing: 5px; font-size: 0.75rem;">Refined
+                Guests</p>
+        </div>
+        <div class="animate-fade-in" style="animation-delay: 0.2s;">
+            <h2
+                style="font-size: 4.5rem; color: var(--primary); margin-bottom: 0.5rem; font-family: 'Playfair Display', serif;">
+                99.9%</h2>
+            <p style="color: #94a3b8; text-transform: uppercase; letter-spacing: 5px; font-size: 0.75rem;">AI Precision
+            </p>
+        </div>
+        <div class="animate-fade-in" style="animation-delay: 0.3s;">
+            <h2
+                style="font-size: 4.5rem; color: var(--primary); margin-bottom: 0.5rem; font-family: 'Playfair Display', serif;">
+                24/7</h2>
+            <p style="color: #94a3b8; text-transform: uppercase; letter-spacing: 5px; font-size: 0.75rem;">Elite
+                Concierge</p>
+        </div>
+    </div>
+</section>
+
+<div class="sections-wrapper">
+    <section class="section-padding">
+        <div class="section-title">
+            <h2 class="animate-fade-in">Premium Categories</h2>
+            <p class="animate-fade-in" style="color: var(--text-dim);">Tailored experiences for every occasion</p>
+        </div>
+
+        <div class="category-grid">
+            <a href="{{ url_for('marriage') }}" class="category-card animate-fade-in"
+                style="text-decoration: none;">
+                <img src="{{ url_for('static', filename='image/wedding_bg_rings.png') }}" alt="Weddings"
+                    class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Luxury Weddings</h3>
+                    <p>Creating timeless memories with elegance and grace.</p>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('birthday') }}" class="category-card animate-fade-in" style="text-decoration: none; animation-delay: 0.1s;">
+                <img src="{{ url_for('static', filename='image/birthday.png') }}" alt="Birthdays" class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Grand Birthdays</h3>
+                    <p>Celebrated milestones with vibrant themes and professional coordination.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('corporate') }}" class="category-card animate-fade-in" style="text-decoration: none; animation-delay: 0.2s;">
+                <img src="{{ url_for('static', filename='image/corporate.png') }}" alt="Corporate" class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Corporate Galas</h3>
+                    <p>Sophisticated networking events and high-production company galas.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('meetup') }}" class="category-card animate-fade-in" style="text-decoration: none; animation-delay: 0.3s;">
+                <img src="{{ url_for('static', filename='image/concert.png') }}" alt="Meetups" class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Exclusive Meetups</h3>
+                    <p>Curated social experiences and community gatherings.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('fashion_show') }}" class="category-card animate-fade-in" style="text-decoration: none; animation-delay: 0.4s;">
+                <img src="{{ url_for('static', filename='image/fashion_show.jpg') }}" alt="Fashion Show" class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Haute Couture</h3>
+                    <p>World-class runway experiences and designer showcases.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('sports') }}" class="category-card animate-fade-in" style="text-decoration: none; animation-delay: 0.5s;">
+                <img src="{{ url_for('static', filename='image/sports.jpg') }}" alt="Sports" class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Elite Sports</h3>
+                    <p>High-octane tournaments and corporate sports leagues.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('festival') }}" class="category-card animate-fade-in" style="text-decoration: none; animation-delay: 0.6s;">
+                <img src="{{ url_for('static', filename='image/festival.jpg') }}" alt="Festivals" class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Grand Festivals</h3>
+                    <p>Immersive cultural celebrations and music festivals.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('charity') }}" class="category-card animate-fade-in" style="text-decoration: none; animation-delay: 0.7s;">
+                <img src="{{ url_for('static', filename='image/charity.jpg') }}" alt="Charity" class="category-image">
+                <div class="category-overlay">
+                    <h3 style="font-family: 'Playfair Display', serif;">Philanthropy Galas</h3>
+                    <p>Impactful fundraising events for noble causes.</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Detailed Feature Section -->
+    <section style="padding: 10rem 4rem; background: transparent; border-top: 1px solid rgba(197, 160, 89, 0.05);">
+        <div
+            style="max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 6rem; align-items: center;">
+            <div class="animate-fade-in">
+                <h2
+                    style="font-size: 3.5rem; margin-bottom: 2rem; line-height: 1.2; font-family: 'Playfair Display', serif;">
+                    Intelligence Met with<br><span class="gradient-text">Absolute Elegance</span></h2>
+                <p style="font-size: 1.2rem; color: #94a3b8; margin-bottom: 3rem; line-height: 1.8;">We've redefined
+                    event orchestration by blending sophisticated AI technology with a relentless pursuit of perfection.
+                    Every detail is curated for the most discerning clients.</p>
+            </div>
+            <div class="animate-fade-in"
+                style="padding: 0; overflow: hidden; height: 650px; border-radius: 12px; border: 1px solid rgba(197, 160, 89, 0.2); box-shadow: 0 40px 80px rgba(0,0,0,0.6);">
+                <img src="{{ url_for('static', filename='image/about_hero.png') }}" alt="Event Planning"
+                    style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;">
+            </div>
+        </div>
+    </section>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+<footer style="background: #080c14; border-top: 1px solid rgba(197, 160, 89, 0.1); padding: 8rem 2rem 4rem;">
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 3.5rem; color: white; margin-bottom: 2rem;">
+            Ready to Orchestrate Your <span class="gradient-text">Masterpiece</span>?</h2>
+        <p style="color: #94a3b8; font-size: 1.2rem; margin-bottom: 4rem; max-width: 600px; margin-inline: auto;">
+            Join the elite circles who trust Neuro Eventer for their most significant milestones.</p>
+
+        <div style="display: flex; gap: 2rem; justify-content: center; margin-bottom: 6rem;">
+            <a href="{{ url_for('signup') }}" class="btn-premium btn-primary">GET STARTED</a>
+            <a href="{{ url_for('contact') }}" class="btn-premium btn-outline">TALK TO AN AGENT</a>
+        </div>
+        
+        <div style="margin-top: 8rem; display: flex; flex-direction: column; align-items: center; gap: 4rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 5rem;">
+            <div style="display: flex; gap: 4rem;">
+                <a href="{{ url_for('home') }}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; letter-spacing: 2px;">DASHBOARD</a>
+                <a href="{{ url_for('about') }}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; letter-spacing: 2px;">OUR STORY</a>
+                <a href="{{ url_for('contact') }}" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; letter-spacing: 2px;">CONTACT</a>
+            </div>
+            <div style="color: #475569; font-size: 0.8rem; letter-spacing: 4px; text-transform: uppercase;">
+                &copy; 2026 Neuro Eventer &bull; Masterminded by Sohan Kumar Swain
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %}

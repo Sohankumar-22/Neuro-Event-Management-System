@@ -1,0 +1,790 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  :root {
+    --bg-dark: #0d0d0d;
+    --panel-bg: #1a1a1a;
+    --gold: #FFD700;
+    --gold-hover: #e6c200;
+    --purple: #9333ea;
+    --text-main: #ffffff;
+    --text-muted: #a3a3a3;
+    --border: rgba(255, 215, 0, 0.15);
+    
+    /* Status Colors */
+    --status-green: #00ff88;
+    --status-yellow: #ffc107;
+    --status-red: #ff4d4d;
+  }
+
+  body {
+    margin: 0;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    /* No opaque background — neural background from layout.html shows through */
+  }
+
+  /* Admin Layout */
+  .admin-layout {
+    display: flex;
+    height: calc(100vh - 80px);
+    overflow: hidden;
+    padding-top: 80px;
+  }
+
+  /* Sidebar */
+  .admin-sidebar {
+    width: 260px;
+    background: rgba(10, 10, 15, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-main);
+    letter-spacing: 1px;
+  }
+
+  .sidebar-header h2 span {
+    color: var(--gold);
+  }
+
+  .nav-menu {
+    flex: 1;
+    padding: 1.5rem 0;
+    overflow-y: auto;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    gap: 1rem;
+    font-size: 1.05rem;
+    transition: all 0.3s;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover {
+    background: rgba(255, 215, 0, 0.05);
+    color: var(--gold);
+  }
+
+  .nav-item.active {
+    background: rgba(147, 51, 234, 0.1);
+    color: var(--gold);
+    border-left-color: var(--purple);
+  }
+
+  /* Main Content Area */
+  .admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: transparent; /* Let neural background show through */
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Topbar */
+  .admin-topbar {
+    height: 70px;
+    background: rgba(10, 10, 15, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+  }
+
+  .topbar-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .btn-gold {
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-gold:hover {
+    background: var(--gold-hover);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--purple);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: white;
+    border: 2px solid var(--gold);
+  }
+
+  /* Content Views */
+  .content-view {
+    display: none;
+    padding: 2rem;
+    overflow-y: auto;
+    height: 100%;
+  }
+
+  .content-view.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards & Grid */
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: rgba(20, 20, 30, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--purple);
+  }
+
+  .stat-card.gold-line::before { background: var(--gold); }
+  
+  .stat-title {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+
+  /* Tables */
+  .panel-box {
+    background: rgba(20, 20, 30, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  .admin-table th, .admin-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .admin-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+  }
+
+  .admin-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  /* Badges */
+  .badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .badge-live { background: rgba(0, 255, 136, 0.1); color: var(--status-green); border: 1px solid rgba(0,255,136,0.3); }
+  .badge-draft { background: rgba(255, 193, 7, 0.1); color: var(--status-yellow); border: 1px solid rgba(255,193,7,0.3); }
+  .badge-cancelled { background: rgba(255, 77, 77, 0.1); color: var(--status-red); border: 1px solid rgba(255,77,77,0.3); }
+
+  /* Input & Filters */
+  .filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-input {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-family: inherit;
+    width: 250px;
+  }
+
+  .admin-input:focus {
+    outline: none;
+    border-color: var(--purple);
+  }
+
+  .admin-select {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-family: inherit;
+  }
+
+</style>
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <h2>Neuro <span>Eventer</span></h2>
+    </div>
+    <div class="nav-menu">
+      <div class="nav-item active" data-target="view-dashboard">📊 Dashboard</div>
+      <div class="nav-item" data-target="view-events">📋 Events</div>
+      <div class="nav-item" data-target="view-bookings">🎟️ Bookings</div>
+      <div class="nav-item" data-target="view-users">👥 Users</div>
+      <div class="nav-item" data-target="view-analytics">📈 Analytics</div>
+      <div class="nav-item" data-target="view-payments">💳 Payments</div>
+      <div class="nav-item" data-target="view-notifications">🔔 Notifications</div>
+      <div class="nav-item" data-target="view-venues">🏟️ Venues</div>
+      <div class="nav-item" data-target="view-settings">⚙️ Settings</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <!-- Topbar -->
+    <header class="admin-topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn-gold">+ Add Event</button>
+        <div style="font-size: 1.2rem; cursor: pointer;">🔔</div>
+        <div class="avatar">AD</div>
+      </div>
+    </header>
+
+    <!-- VIEWS -->
+    
+    <!-- 1. Dashboard -->
+    <div class="content-view active" id="view-dashboard">
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-title">Total Events</div>
+          <div class="stat-value">124</div>
+        </div>
+        <div class="stat-card gold-line">
+          <div class="stat-title">Total Bookings</div>
+          <div class="stat-value">892</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Revenue</div>
+          <div class="stat-value">₹4.2M</div>
+        </div>
+        <div class="stat-card gold-line">
+          <div class="stat-title">Pending Approvals</div>
+          <div class="stat-value" style="color: var(--status-yellow);">18</div>
+        </div>
+      </div>
+
+      <div class="panel-box">
+        <h3>Recent Activity</h3>
+        <ul style="list-style: none; padding: 0; margin-top: 1rem; color: var(--text-muted);">
+          <li style="padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">🟢 <b>Sohan Kumar</b> booked "Milan Fashion Week" for Oct 12.</li>
+          <li style="padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">💳 Payment of ₹1,20,000 received for Booking #EVT-42.</li>
+          <li style="padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">🔔 New Event "Cyber Tech Meetup" requires approval.</li>
+          <li style="padding: 1rem 0;">👤 New user registration: admin_test@neuro.com</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 2. Events -->
+    <div class="content-view" id="view-events">
+      <div class="panel-box">
+        <div class="filter-bar">
+          <select class="admin-select">
+            <option>All Categories</option>
+            <option>Marriage</option>
+            <option>Birthday</option>
+            <option>Corporate</option>
+            <option>Concert</option>
+            <option>Fashion Show</option>
+            <option>Sports</option>
+            <option>Festival</option>
+            <option>Charity</option>
+          </select>
+          <input type="text" class="admin-input" placeholder="Search events...">
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Venue</th>
+              <th>Status</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Milan Fashion Week Expo</td>
+              <td>Fashion</td>
+              <td>Oct 12, 2026</td>
+              <td>Grand Plaza, Mumbai</td>
+              <td><span class="badge badge-live">Live</span></td>
+              <td>₹1,20,000</td>
+              <td><span style="color: var(--gold); cursor:pointer;">Edit</span> | <span style="color: var(--status-red); cursor:pointer;">Del</span></td>
+            </tr>
+            <tr>
+              <td>Tech Startup Meetup</td>
+              <td>Corporate</td>
+              <td>Nov 05, 2026</td>
+              <td>Innovation Hub, BLR</td>
+              <td><span class="badge badge-draft">Draft</span></td>
+              <td>₹45,000</td>
+              <td><span style="color: var(--gold); cursor:pointer;">Edit</span> | <span style="color: var(--status-red); cursor:pointer;">Del</span></td>
+            </tr>
+            <tr>
+              <td>Sunburn Festival</td>
+              <td>Festival</td>
+              <td>Dec 30, 2026</td>
+              <td>Vagator Beach, Goa</td>
+              <td><span class="badge badge-cancelled">Cancelled</span></td>
+              <td>₹3,00,000</td>
+              <td><span style="color: var(--gold); cursor:pointer;">Edit</span> | <span style="color: var(--status-red); cursor:pointer;">Del</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Bookings -->
+    <div class="content-view" id="view-bookings">
+      <div class="grid-4">
+        <div class="stat-card"><div class="stat-title">Total Bookings</div><div class="stat-value">892</div></div>
+        <div class="stat-card gold-line"><div class="stat-title">Collected</div><div class="stat-value">₹4.2M</div></div>
+        <div class="stat-card"><div class="stat-title">Pending</div><div class="stat-value" style="color:var(--status-yellow);">14</div></div>
+        <div class="stat-card gold-line"><div class="stat-title">Refunded</div><div class="stat-value" style="color:var(--status-red);">3</div></div>
+      </div>
+      <div class="panel-box">
+        <div class="filter-bar">
+          <div>
+            <button class="btn-gold" style="margin-right:0.5rem;">All</button>
+            <button class="btn-gold" style="background:transparent; border:1px solid var(--gold); color:var(--text-main);">Paid</button>
+            <button class="btn-gold" style="background:transparent; border:1px solid var(--gold); color:var(--text-main);">Pending</button>
+          </div>
+          <button class="btn-gold" style="background: #2a2a2a; color: white;">📥 Export CSV</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Payment Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sohan Kumar</td>
+              <td>Grand Birthday Bash</td>
+              <td>Oct 15, 2026</td>
+              <td>₹50,000</td>
+              <td><span class="badge badge-live">Paid</span></td>
+              <td><span style="cursor:pointer;">Cancel</span> | <span style="cursor:pointer;">Refund</span></td>
+            </tr>
+            <tr>
+              <td>Jane Doe</td>
+              <td>Corporate Gala</td>
+              <td>Nov 01, 2026</td>
+              <td>₹1,80,000</td>
+              <td><span class="badge badge-draft">Pending</span></td>
+              <td><span style="cursor:pointer; color:var(--status-green);">Confirm</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. Users -->
+    <div class="content-view" id="view-users">
+      <div class="panel-box">
+        <div class="filter-bar">
+          <select class="admin-select">
+            <option>All Roles</option>
+            <option>Admin</option>
+            <option>Organizer</option>
+            <option>User</option>
+          </select>
+          <input type="text" class="admin-input" placeholder="Search users...">
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Joined</th>
+              <th>Bookings</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="display:flex; align-items:center; gap:10px;"><div class="avatar" style="width:30px;height:30px;font-size:0.8rem;">SK</div> Sohan Kumar</td>
+              <td>sohan@neuro.com</td>
+              <td><span class="badge" style="background:rgba(255,215,0,0.1); color:var(--gold);">Admin</span></td>
+              <td>Jan 01, 2026</td>
+              <td>5</td>
+              <td><span style="color:var(--status-green);">Active</span></td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td style="display:flex; align-items:center; gap:10px;"><div class="avatar" style="width:30px;height:30px;font-size:0.8rem;background:#444;border-color:#666;">JD</div> John Doe</td>
+              <td>john@example.com</td>
+              <td><span class="badge" style="background:rgba(255,255,255,0.1); color:#fff;">User</span></td>
+              <td>Mar 15, 2026</td>
+              <td>2</td>
+              <td><span style="color:var(--status-green);">Active</span></td>
+              <td><span style="color:var(--status-red); cursor:pointer;">Block</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. Analytics -->
+    <div class="content-view" id="view-analytics">
+      <div class="filter-bar">
+        <h3 style="margin:0;">Performance Overview</h3>
+        <select class="admin-select"><option>Last 30 Days</option><option>Last 7 Days</option><option>Last 90 Days</option></select>
+      </div>
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div class="panel-box">
+          <h4 style="margin-top:0;">Bookings Trend</h4>
+          <canvas id="bookingsChart" height="120"></canvas>
+        </div>
+        <div class="panel-box">
+          <h4 style="margin-top:0;">Event Status Split</h4>
+          <canvas id="statusChart" height="200"></canvas>
+        </div>
+      </div>
+      <div class="panel-box">
+        <h4 style="margin-top:0;">Revenue by Category</h4>
+        <canvas id="revenueChart" height="80"></canvas>
+      </div>
+    </div>
+
+    <!-- 6. Payments -->
+    <div class="content-view" id="view-payments">
+      <div class="grid-4">
+        <div class="stat-card"><div class="stat-title">Total Collected</div><div class="stat-value">₹4.2M</div></div>
+        <div class="stat-card"><div class="stat-title">Refunded</div><div class="stat-value">₹1.5L</div></div>
+        <div class="stat-card"><div class="stat-title">Failed</div><div class="stat-value">₹45K</div></div>
+        <div class="stat-card"><div class="stat-title">Pending</div><div class="stat-value">₹2.1L</div></div>
+      </div>
+      <div class="panel-box">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>TXN ID</th>
+              <th>User</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TXN-982347</td>
+              <td>Sohan Kumar</td>
+              <td>₹50,000</td>
+              <td>UPI</td>
+              <td><span class="badge badge-live">Success</span></td>
+              <td>Oct 15, 2026</td>
+              <td><span style="color:var(--gold); cursor:pointer;">Refund</span></td>
+            </tr>
+            <tr>
+              <td>TXN-982348</td>
+              <td>Jane Doe</td>
+              <td>₹1,80,000</td>
+              <td>Credit Card</td>
+              <td><span class="badge badge-cancelled">Failed</span></td>
+              <td>Nov 01, 2026</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7. Notifications -->
+    <div class="content-view" id="view-notifications">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="panel-box">
+          <h3 style="margin-top:0; color:var(--gold);">Compose Notification</h3>
+          <div style="margin-bottom: 1rem;">
+            <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Title</label>
+            <input type="text" class="admin-input" style="width: 100%; box-sizing: border-box;" placeholder="Notification Title">
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Message</label>
+            <textarea class="admin-input" style="width: 100%; box-sizing: border-box; height: 120px;" placeholder="Type your message here..."></textarea>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Target Audience</label>
+            <select class="admin-select" style="width: 100%;">
+              <option>All Users</option>
+              <option>Organizers Only</option>
+              <option>Specific Event Attendees</option>
+            </select>
+          </div>
+          <button class="btn-gold" style="width: 100%;">Send Now 🚀</button>
+        </div>
+        
+        <div class="panel-box">
+          <h3 style="margin-top:0;">Broadcast History</h3>
+          <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem 0;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+              <strong>System Maintenance</strong> <span class="badge badge-live">Sent</span>
+            </div>
+            <div style="color:var(--text-muted); font-size:0.9rem;">To: All Users | Today, 10:00 AM</div>
+          </div>
+          <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1rem 0;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+              <strong>New Festive Discount!</strong> <span class="badge badge-draft">Scheduled</span>
+            </div>
+            <div style="color:var(--text-muted); font-size:0.9rem;">To: All Users | Oct 20, 2026, 09:00 AM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Venues -->
+    <div class="content-view" id="view-venues">
+      <div class="filter-bar">
+        <h3>Managed Venues</h3>
+        <button class="btn-gold">+ Add New Venue</button>
+      </div>
+      <div class="grid-4">
+        <!-- Venue Card 1 -->
+        <div class="panel-box" style="padding: 0; overflow: hidden;">
+          <div style="height: 120px; background: linear-gradient(135deg, rgba(147,51,234,0.4), rgba(255,215,0,0.2));"></div>
+          <div style="padding: 1.5rem;">
+            <h4 style="margin: 0 0 0.5rem 0;">Grand Plaza Hall</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 1rem 0;">📍 Mumbai |  👥 1500 Cap</p>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight: 800; color: var(--gold);">₹80,000/day</span>
+              <span style="color:var(--text-muted); cursor:pointer;">Edit</span>
+            </div>
+          </div>
+        </div>
+        <!-- Venue Card 2 -->
+        <div class="panel-box" style="padding: 0; overflow: hidden;">
+          <div style="height: 120px; background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,191,255,0.2));"></div>
+          <div style="padding: 1.5rem;">
+            <h4 style="margin: 0 0 0.5rem 0;">Eco Gardens</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0 0 1rem 0;">📍 Bangalore |  👥 800 Cap</p>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight: 800; color: var(--gold);">₹40,000/day</span>
+              <span style="color:var(--text-muted); cursor:pointer;">Edit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Settings -->
+    <div class="content-view" id="view-settings">
+      <div class="panel-box">
+        <h3 style="color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-top: 0;">General Configuration</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+          <div>
+            <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Site Name</label>
+            <input type="text" class="admin-input" style="width: 100%; box-sizing: border-box;" value="Neuro Eventer">
+          </div>
+          <div>
+            <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Contact Email</label>
+            <input type="email" class="admin-input" style="width: 100%; box-sizing: border-box;" value="admin@neuroeventer.com">
+          </div>
+        </div>
+
+        <h3 style="color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-top: 3rem;">Payment Gateway (Razorpay)</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+          <div>
+            <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Key ID</label>
+            <input type="password" class="admin-input" style="width: 100%; box-sizing: border-box;" value="rzp_live_xxxxxxxxxxx">
+          </div>
+          <div>
+            <label style="display:block; margin-bottom:0.5rem; color:var(--text-muted);">Key Secret</label>
+            <input type="password" class="admin-input" style="width: 100%; box-sizing: border-box;" value="xxxxxxxxxxxxxxxxxxxx">
+          </div>
+        </div>
+
+        <div style="margin-top: 3rem; text-align: right;">
+          <button class="btn-gold">Save All Settings</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Simple SPA Tab Router
+  document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    const views = document.querySelectorAll('.content-view');
+    const titleObj = document.getElementById('topbarTitle');
+
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        // Update active nav
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+        
+        // Change title
+        titleObj.innerText = item.innerText.replace(/[^\w\s]/gi, '').trim();
+
+        // Switch view
+        const targetId = item.getAttribute('data-target');
+        views.forEach(v => v.classList.remove('active'));
+        document.getElementById(targetId).classList.add('active');
+
+        // Render charts if analytics tab
+        if(targetId === 'view-analytics' && !window.chartsRendered) {
+          renderCharts();
+          window.chartsRendered = true;
+        }
+      });
+    });
+
+    // Chart.js Setup
+    function renderCharts() {
+      // Line Chart (Bookings)
+      new Chart(document.getElementById('bookingsChart'), {
+        type: 'line',
+        data: {
+          labels: ['1', '5', '10', '15', '20', '25', '30'],
+          datasets: [{
+            label: 'Bookings',
+            data: [12, 19, 15, 25, 22, 30, 28],
+            borderColor: '#FFD700',
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+      });
+
+      // Pie Chart (Status)
+      new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Live', 'Draft', 'Cancelled'],
+          datasets: [{
+            data: [65, 25, 10],
+            backgroundColor: ['#00ff88', '#ffc107', '#ff4d4d'],
+            borderWidth: 0
+          }]
+        },
+        options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { color: '#a3a3a3' } } } }
+      });
+
+      // Bar Chart (Revenue by Category)
+      new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Marriage', 'Corporate', 'Festival', 'Fashion Show', 'Concert', 'Sports', 'Birthday', 'Charity'],
+          datasets: [{
+            label: 'Revenue (₹)',
+            data: [1500000, 800000, 600000, 500000, 400000, 200000, 150000, 50000],
+            backgroundColor: '#9333ea',
+            borderRadius: 4
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+      });
+    }
+  });
+</script>
+{% endblock %}

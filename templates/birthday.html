@@ -1,0 +1,194 @@
+{% extends "layout.html" %}
+
+{% block body_class %}birthday-celebration-theme{% endblock %}
+
+{% block extra_css %}
+<style>
+    .birthday-celebration-theme {
+        background: #0d0b14;
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(147, 51, 234, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(0, 238, 255, 0.05) 0%, transparent 40%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+    .page-wrapper {
+        background: linear-gradient(to bottom, rgba(10, 10, 15, 0.9), rgba(10, 10, 15, 0.95)),
+        url("{{ url_for('static', filename='image/birthday_bg.png') }}");
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        padding-bottom: 8rem;
+    }
+
+    .category-hero {
+        height: 60vh;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(10, 10, 15, 1) 100%),
+        url("{{ url_for('static', filename='image/birthday_bg.png') }}");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 100px;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .hero-text {
+        text-align: center;
+        z-index: 2;
+    }
+
+    .hero-text h1 {
+        font-size: clamp(3rem, 8vw, 5rem);
+        margin-bottom: 1rem;
+    }
+
+    .events-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 3rem;
+    }
+
+    .event-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .event-image-container {
+        width: 100%;
+        height: 240px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .event-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .event-card:hover .event-image {
+        transform: scale(1.1);
+    }
+
+    .event-content {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .event-card h3 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .event-details {
+        flex-grow: 1;
+        margin-bottom: 2rem;
+        color: var(--text-dim);
+    }
+
+    .event-details div {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="category-hero">
+        <div class="hero-text animate-fade-in">
+            <h1 class="gradient-text">Grand Birthdays</h1>
+            <p>Turning every year into a milestone celebration.</p>
+        </div>
+    </div>
+
+    <div class="events-container">
+        {% for event in events %}
+        {% if event.title == "Birthday" %}
+        <div class="glass-card event-card animate-fade-in">
+            <div class="event-image-container">
+                <img src="{{ url_for('static', filename='image/' + event.image) }}" alt="{{ event.location }}"
+                    class="event-image">
+            </div>
+            <div class="event-content">
+                <h3>{{ event.title }} Celebration</h3>
+                <div class="event-details">
+                    <div>📍 <strong>{{ event.location }}</strong></div>
+                    <p>{{ event.description }}</p>
+                    <div style="margin-top: 1rem;">👥 Capacity: {{ event.capacity }}</div>
+                </div>
+                <a href="{{ url_for('book', title=event.title, location=event.location, capacity=event.capacity) }}"
+                    class="btn-premium btn-primary" style="width: 100%;">
+                    Book Experience
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        {% for event in db_events %}
+        <div class="glass-card event-card animate-fade-in">
+            <div class="event-image-container">
+                <img src="{{ url_for('static', filename='image/' + event.image) if event.image else url_for('static', filename='image/birthday.png') }}" alt="{{ event.location }}"
+                    class="event-image">
+            </div>
+            <div class="event-content">
+                <h3>{{ event.location.split(',')[0] }} (Special)</h3>
+                <div class="event-details">
+                    <div>📍 <strong>{{ event.location }}</strong></div>
+                    <p>{{ event.description }}</p>
+                    <div style="margin-top: 1rem;">👥 Capacity: {{ event.capacity }}</div>
+                </div>
+                <a href="{{ url_for('book', title=event.title, location=event.location, capacity=event.capacity) }}"
+                    class="btn-premium btn-primary" style="width: 100%;">
+                    Book Party
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+    {% endblock %}
+
+{% block footer %}
+<footer style="background: #08070c; border-top: 1px solid rgba(147, 51, 234, 0.2); padding: 8rem 2rem 4rem;">
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: #a855f7; margin-bottom: 2rem;">Festive <span style="color: white;">Magic</span></h2>
+        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 4rem; max-width: 600px; margin-inline: auto;">Personalized celebration management where every year feels like a grand masterpiece.</p>
+        
+        <div style="display: flex; gap: 3rem; justify-content: center; margin-bottom: 4rem;">
+            <div style="text-align: left;">
+                <h4 style="color: white; font-family: 'Playfair Display'; margin-bottom: 1rem;">Experience</h4>
+                <a href="#" style="color: #475569; text-decoration: none; display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Themed Decor</a>
+                <a href="#" style="color: #475569; text-decoration: none; display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Entertainment Bureau</a>
+            </div>
+            <div style="text-align: left;">
+                <h4 style="color: white; font-family: 'Playfair Display'; margin-bottom: 1rem;">Creative Director</h4>
+                <p style="color: var(--primary); font-size: 0.9rem; margin: 0;">Sohan Kumar Swain</p>
+            </div>
+        </div>
+        
+        <div style="color: #334155; font-size: 0.75rem; letter-spacing: 2px; padding-top: 4rem; border-top: 1px solid rgba(255,255,255,0.03);">
+            &copy; 2026 THE FESTIVE BUREAU &bull; EVENTER LUXURY GROUP
+        </div>
+    </div>
+</footer>
+{% endblock %}

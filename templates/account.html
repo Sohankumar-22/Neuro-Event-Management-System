@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .account-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 70vh;
+        padding: 2rem;
+    }
+
+    .account-card {
+        width: 100%;
+        max-width: 500px;
+        padding: 3rem;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: var(--primary-glow);
+        border: 2px solid var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 3rem;
+        color: white;
+        box-shadow: 0 0 30px rgba(0, 238, 255, 0.2);
+    }
+
+    .profile-info {
+        text-align: left;
+        margin: 2.5rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .info-row {
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .info-row label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-row span {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .lock-prompt {
+        padding: 2rem;
+    }
+
+    .lock-icon {
+        font-size: 3rem;
+        color: #ff4081;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="account-wrapper">
+    <div class="glass-card account-card animate-fade-in">
+        {% if session['username'] %}
+        <div class="profile-avatar">👤</div>
+        <h1 class="gradient-text">Member Profile</h1>
+        <p style="color: var(--text-dim);">Manage your premium access and bookings</p>
+
+        <div class="profile-info">
+            <div class="info-row">
+                <label>Username</label>
+                <span>{{ username }}</span>
+            </div>
+            <div class="info-row">
+                <label>Email Address</label>
+                <span>{{ email }}</span>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <a href="{{ url_for('mybookings') }}" class="btn-premium btn-primary">
+                View My Bookings
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn-premium btn-outline"
+                style="color: #ff4081; border-color: rgba(255, 64, 129, 0.3);">
+                Sign Out
+            </a>
+        </div>
+        {% else %}
+        <div class="lock-prompt">
+            <div class="lock-icon">🔒</div>
+            <h2>Access Restricted</h2>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Please sign in to view your account details and
+                manage bookings.</p>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <a href="{{ url_for('login') }}" class="btn-premium btn-primary">Sign In</a>
+                <a href="{{ url_for('signup') }}" class="btn-premium btn-outline">Create Account</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

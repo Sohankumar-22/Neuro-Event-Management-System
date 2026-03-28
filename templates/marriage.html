@@ -1,0 +1,384 @@
+{% extends "layout.html" %}
+
+{% block body_class %}marriage-romance-theme{% endblock %}
+
+{% block extra_css %}
+<style>
+    .marriage-romance-theme {
+        background: #0f1016;
+        background-image: 
+            radial-gradient(circle at top left, rgba(255, 183, 197, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.05) 0%, transparent 40%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+    .page-wrapper {
+        background: linear-gradient(to bottom, rgba(10, 10, 15, 0.85), rgba(10, 10, 15, 0.9)),
+        url("{{ url_for('static', filename='image/wedding_bg_rings.png') }}");
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        min-height: 100vh;
+        padding-bottom: 8rem;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Falling Petals Animation */
+    .petals-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .petal {
+        position: absolute;
+        background: radial-gradient(circle, #ffb7c5, #ff99aa);
+        width: 15px;
+        height: 10px;
+        border-radius: 50% 0 50% 50%;
+        opacity: 0.6;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-10vh) translateX(0) rotate(0deg);
+            opacity: 0;
+        }
+
+        10% {
+            opacity: 0.8;
+        }
+
+        90% {
+            opacity: 0.8;
+        }
+
+        100% {
+            transform: translateY(110vh) translateX(100px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    .category-hero {
+        height: 70vh;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(10, 10, 15, 1) 100%),
+        url("{{ url_for('static', filename='image/wedding_bg_rings.png') }}");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 100px;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .hero-text {
+        text-align: center;
+        z-index: 2;
+    }
+
+    .hero-text h1 {
+        font-size: clamp(3.5rem, 10vw, 6rem);
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 30px rgba(0, 238, 255, 0.3);
+    }
+
+    /* Highlights Section */
+    .wedding-highlights {
+        max-width: 1200px;
+        margin: 0 auto 5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        padding: 0 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .highlight-item {
+        text-align: center;
+        padding: 2.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .highlight-item:hover {
+        transform: translateY(-10px);
+    }
+
+    .highlight-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        display: block;
+        background: linear-gradient(135deg, #00eeff, #9333ea);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* FIX: Image distortion and layout */
+    .events-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .event-card {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .event-image-container {
+        width: 100%;
+        height: 240px;
+        /* Consistent height */
+        overflow: hidden;
+        position: relative;
+    }
+
+    .event-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* PREVENTS DISTORTION */
+        transition: transform 0.5s ease;
+    }
+
+    .event-card:hover .event-image {
+        transform: scale(1.1);
+    }
+
+    .premium-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: linear-gradient(135deg, #00eeff, #9333ea);
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        z-index: 3;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .event-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    /* NEW FEATURE: Trust Section */
+    .trust-section {
+        max-width: 1200px;
+        margin: 6rem auto;
+        padding: 4rem 2rem;
+        text-align: center;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .testimonial-card {
+        padding: 2rem;
+        text-align: left;
+    }
+
+    .stars {
+        color: #ffd700;
+        margin-bottom: 1rem;
+        display: block;
+    }
+</style>
+
+<div class="page-wrapper">
+    <!-- Animated Petals -->
+    <div class="petals-container" id="petals"></div>
+
+    <div class="category-hero">
+        <div class="hero-text animate-fade-in">
+            <h1 class="gradient-text">Eternal Elegance</h1>
+            <p style="font-size: 1.2rem; letter-spacing: 2px;">WHERE DREAMS ASCEND INTO REALITY</p>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="wedding-highlights">
+        <div class="glass-card highlight-item animate-fade-in" style="animation-delay: 0.1s;">
+            <span class="highlight-icon">✨</span>
+            <h4>Royal Decor</h4>
+            <p>Bespoke themes crafted by world-class artisans to match your vision.</p>
+        </div>
+        <div class="glass-card highlight-item animate-fade-in" style="animation-delay: 0.2s;">
+            <span class="highlight-icon">🍽️</span>
+            <h4>Gourmet Cuisine</h4>
+            <p>Exceptional catering featuring global delicacies and signature flavors.</p>
+        </div>
+        <div class="glass-card highlight-item animate-fade-in" style="animation-delay: 0.3s;">
+            <span class="highlight-icon">🎻</span>
+            <h4>Live Symphony</h4>
+            <p>Curated musical experiences ranging from classical to modern brilliance.</p>
+        </div>
+        <div class="glass-card highlight-item animate-fade-in" style="animation-delay: 0.4s;">
+            <span class="highlight-icon">📸</span>
+            <h4>Cinematic Capture</h4>
+            <p>Premium photography and film to preserve every heartbeat of your day.</p>
+        </div>
+    </div>
+
+    <div class="events-container">
+        {% for event in events %}
+        {% if event.title == "Marriage" %}
+        <div class="glass-card event-card animate-fade-in">
+            <div class="premium-badge">PREMIUM CHOICE</div>
+            <div class="event-image-container">
+                <img src="{{ url_for('static', filename='image/' + event.image) }}" alt="{{ event.location }}"
+                    class="event-image">
+            </div>
+            <div class="event-content">
+                <h3 style="margin-bottom: 0.5rem; color: #00eeff;">{{ event.location.split(',')[0] }}</h3>
+                <p style="color: #b0b0b0; font-size: 0.85rem; margin-bottom: 1rem;">{{ event.location.split(',')[1] if
+                    ',' in event.location else event.location }}</p>
+                <div class="event-details" style="flex-grow: 1;">
+                    <p style="font-style: italic; color: #b0b0b0; margin-bottom: 1.5rem;">"{{ event.description }}"</p>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; color: white;">
+                        <span>👥 Up to {{ event.capacity }}</span>
+                        <span style="font-weight: 700;">Luxury Suite</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('book', title=event.title, location=event.location, capacity=event.capacity) }}"
+                    class="btn-premium btn-primary" style="width: 100%; margin-top: 1.5rem;">
+                    Reserve Elite Venue
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        {% for event in db_events %}
+        <div class="glass-card event-card animate-fade-in">
+            <div class="premium-badge">NEWLY DEPLOYED</div>
+            <div class="event-image-container">
+                <img src="{{ url_for('static', filename='image/' + event.image) if event.image else url_for('static', filename='image/wedding_bg_rings.png') }}" alt="{{ event.location }}"
+                    class="event-image">
+            </div>
+            <div class="event-content">
+                <h3 style="margin-bottom: 0.5rem; color: #00eeff;">{{ event.location.split(',')[0] }}</h3>
+                <p style="color: #b0b0b0; font-size: 0.85rem; margin-bottom: 1rem;">{{ event.location.split(',')[1] if
+                    ',' in event.location else event.location }}</p>
+                <div class="event-details" style="flex-grow: 1;">
+                    <p style="font-style: italic; color: #b0b0b0; margin-bottom: 1.5rem;">"{{ event.description }}"</p>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; color: white;">
+                        <span>👥 Up to {{ event.capacity }}</span>
+                        <span style="font-weight: 700;">Custom Selection</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('book', title=event.title, location=event.location, capacity=event.capacity) }}"
+                    class="btn-premium btn-primary" style="width: 100%; margin-top: 1.5rem;">
+                    Reserve Custom Venue
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- NEW ATTRACTIVE SECTION: Testimonials -->
+    <div class="trust-section">
+        <h2 class="gradient-text" style="font-size: 2.5rem; margin-bottom: 1rem;">Voices of Love</h2>
+        <p style="color: #b0b0b0;">Real stories from couples who started their forever with us.</p>
+
+        <div class="testimonial-grid">
+            <div class="glass-card testimonial-card animate-fade-in">
+                <span class="stars">★★★★★</span>
+                <p style="font-style: italic; margin-bottom: 1rem;">"The most magical day of our lives. The attention to
+                    detail at the Lotus Banquet Hall was beyond what we ever imagined."</p>
+                <strong>— Arjun & Priya</strong>
+            </div>
+            <div class="glass-card testimonial-card animate-fade-in" style="animation-delay: 0.2s;">
+                <span class="stars">★★★★★</span>
+                <p style="font-style: italic; margin-bottom: 1rem;">"Royal Garden turned our destination wedding into a
+                    fairytale. The team handled everything perfectly while we enjoyed our day."</p>
+                <strong>— Sarah & James</strong>
+            </div>
+            <div class="glass-card testimonial-card animate-fade-in" style="animation-delay: 0.4s;">
+                <span class="stars">★★★★★</span>
+                <p style="font-style: italic; margin-bottom: 1rem;">"Absolute perfection from start to finish. The
+                    gourmet menu was the talk of the night among our guests!"</p>
+                <strong>— Rahul & Sneha</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const container = document.getElementById('petals');
+    const petalCount = 30;
+    for (let i = 0; i < petalCount; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        petal.style.left = Math.random() * 100 + 'vw';
+        petal.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        petal.style.animationDelay = (Math.random() * 5) + 's';
+        petal.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+        container.appendChild(petal);
+    }
+</script>
+
+    {% endblock %}
+
+{% block footer %}
+<footer style="background: #0a0b10; border-top: 1px solid rgba(255, 183, 197, 0.2); padding: 8rem 2rem 4rem;">
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: #ffb7c5; margin-bottom: 2rem;">Begin Your Forever with <span style="color: white;">Eventer</span></h2>
+        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 4rem; max-width: 600px; margin-inline: auto;">Personalized bridal management for the most significant milestone of your journey.</p>
+        
+        <div style="display: flex; gap: 3rem; justify-content: center; margin-bottom: 5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 5rem;">
+            <div style="text-align: left;">
+                <h4 style="color: white; font-family: 'Playfair Display'; margin-bottom: 1rem;">Bridal Suite</h4>
+                <a href="#" style="color: #64748b; text-decoration: none; display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Wedding Planning</a>
+                <a href="#" style="color: #64748b; text-decoration: none; display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Venue Selection</a>
+            </div>
+            <div style="text-align: left;">
+                <h4 style="color: white; font-family: 'Playfair Display'; margin-bottom: 1rem;">Experience</h4>
+                <a href="#" style="color: #64748b; text-decoration: none; display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Catering Bureau</a>
+                <a href="#" style="color: #64748b; text-decoration: none; display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Guest Logistics</a>
+            </div>
+            <div style="text-align: left;">
+                <h4 style="color: white; font-family: 'Playfair Display'; margin-bottom: 1rem;">Director</h4>
+                <p style="color: var(--primary); font-size: 0.9rem; margin: 0;">Sohan Kumar Swain</p>
+            </div>
+        </div>
+        
+        <div style="color: #334155; font-size: 0.75rem; letter-spacing: 2px;">
+            &copy; 2026 THE WEDDING BUREAU &bull; EVENTER LUXURY GROUP
+        </div>
+    </div>
+</footer>
+{% endblock %}

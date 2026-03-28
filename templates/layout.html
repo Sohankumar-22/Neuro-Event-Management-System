@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURO EVENTER | Premium Event Planning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        /* ===== NEURAL BACKGROUND ===== */
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            background: linear-gradient(-45deg, #000000, #0d0221, #1a0050, #000000);
+            background-size: 400% 400%;
+            animation: gradShift 14s ease infinite;
+        }
+        @keyframes gradShift {
+            0%   { background-position: 0%   50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0%   50%; }
+        }
+        .bg-orbs {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            animation: orbPulse ease-in-out infinite alternate;
+        }
+        .orb-1 { width:500px; height:500px; background:rgba(58,12,163,0.45);  top:-100px;  left:-100px;  animation-duration:6s; }
+        .orb-2 { width:400px; height:400px; background:rgba(255,215,0,0.10);  top:-50px;   right:-80px;  animation-duration:8s; animation-delay:-2s; }
+        .orb-3 { width:450px; height:450px; background:rgba(114,9,183,0.35);  bottom:-100px; left:35%;   animation-duration:7s; animation-delay:-4s; }
+        .orb-4 { width:300px; height:300px; background:rgba(255,215,0,0.07);  bottom:100px; right:-50px; animation-duration:9s; animation-delay:-1s; }
+        @keyframes orbPulse {
+            from { transform: scale(1);   opacity: 0.7; }
+            to   { transform: scale(1.2); opacity: 1;   }
+        }
+        #neural-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        /* ============================= */
+        /* Luxurious Floating Header */
+        header {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 98%;
+            max-width: 1880px;
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.5s ease;
+        }
+
+        header.scrolled {
+            top: 0;
+            width: 100%;
+            border-radius: 0;
+            background: rgba(10, 10, 12, 0.95);
+        }
+
+        nav {
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-left: 2rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        header.scrolled {
+            top: 0;
+            width: 100%;
+            border-radius: 0;
+            padding: 0.8rem 2rem;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 1px solid var(--border);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: rgb(232, 219, 219);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            background: rgba(0, 238, 255, 0.1);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 2px;
+            background: white;
+            transition: var(--transition);
+        }
+
+        @media (max-width: 968px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 80px;
+                right: 0;
+                width: 100%;
+                background: #000;
+                padding: 2rem;
+                text-align: center;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav-links.show {
+                display: flex;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        .bg-particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .global-stellar-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #0c1222 0%, #000 100%);
+            z-index: -2;
+        }
+
+        .global-stellar-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.1;
+            animation: stars-sway 100s linear infinite;
+        }
+
+        @keyframes stars-sway {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <style>
+        /* Luxe Theme 2: Gold & Onyx Utility Classes */
+        .theme-luxe {
+            background: radial-gradient(circle at top right, #0d1117, #000 80%) !important;
+        }
+        .theme-luxe .glass-card, .theme-luxe .category-card {
+            background: rgba(15, 15, 15, 0.8) !important;
+            border: 1px solid rgba(197, 160, 89, 0.3) !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+        .theme-luxe .btn-premium {
+            background: linear-gradient(135deg, #c5a059, #8e6d31) !important;
+            color: #000 !important;
+            font-weight: 800 !important;
+            border: none !important;
+        }
+        .theme-luxe .gradient-text {
+            background: linear-gradient(90deg, #c5a059, #f7e09a) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+        .theme-luxe .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            color: #c5a059 !important;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    {% block background %}{% endblock %}
+
+<header id="mainHeader">
+        <nav>
+            <a href="{{ url_for('home') }}" class="logo" style="display: flex; align-items: center; gap: 15px; text-decoration: none;">
+                <div style="width: 45px; height: 45px; border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; transform: rotate(45deg);">
+                    <div style="transform: rotate(-45deg); color: var(--primary); font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.4rem;">E</div>
+                </div>
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="font-size: 1.6rem; color: #fff; font-weight: 700; letter-spacing: 2px; font-family: 'Playfair Display', serif;">NEURO EVENT</span>
+                    <span style="font-size: 0.65rem; color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 4px;">MANAGEMENT SYSTEM</span>
+                </div>
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('discover') }}">Explore AI</a>
+                <a href="{{ url_for('about') }}">Services</a>
+                {% if session.get('email') or session.get('username') %}
+                <a href="{{ url_for('mybookings') }}">My Bookings</a>
+                <a href="{{ url_for('ai_chatbot_page') }}">AI Assistant</a>
+                <a href="{{ url_for('logout') }}" style="background: var(--primary); color: white; padding: 0.5rem 1.2rem; border-radius: 6px;">Logout</a>
+                {% elif session.get('admin_logged_in') %}
+                <a href="{{ url_for('admin_dashboard') }}" style="color: var(--primary); font-weight: 800; border: 1px solid var(--primary);">ADMIN TERMINAL</a>
+                <a href="{{ url_for('admin_logout') }}" style="background: #ff4081; color: white; padding: 0.5rem 1.2rem; border-radius: 6px;">Exit</a>
+                {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('signup') }}" style="background: var(--primary); color: white; padding: 0.5rem 1.2rem; border-radius: 6px;">Get Started</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main style="padding-top: 130px;">
+        <div class="flash-messages" style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="padding: 1rem; border-radius: 8px; margin-bottom: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; display: flex; justify-content: space-between; align-items: center;">
+                            <span>{{ message }}</span>
+                            <button onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+    <footer style="background: #080c14; border-top: 1px solid rgba(197, 160, 89, 0.1); padding: 4rem 2rem;">
+        <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <span style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--primary); letter-spacing: 2px;">EVENTER</span>
+                <span style="height: 20px; width: 1px; background: rgba(255,255,255,0.1);"></span>
+                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Developed by <b>Sohan Kumar Swain & Team</b> | Group Submission</p>
+            </div>
+            
+            <div style="display: flex; gap: 3rem;">
+                <div class="footer-links-minimal">
+                    <a href="{{ url_for('home') }}" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem; transition: 0.3s;">Dashboard</a>
+                    <a href="{{ url_for('about') }}" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem; transition: 0.3s; margin-left: 2rem;">Our Story</a>
+                    <a href="{{ url_for('marriage') }}" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem; transition: 0.3s; margin-left: 2rem;">Services</a>
+                </div>
+            </div>
+        </div>
+        <div style="max-width: 1400px; margin: 2rem auto 0; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+            <p style="color: #475569; font-size: 0.75rem; margin: 0;">&copy; 2026 Neuro Eventer Logistics. All Rights Reserved.</p>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('navLinks');
+            nav.classList.toggle('show');
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Particle System
+        function createParticles() {
+            const container = document.querySelector('.bg-particles');
+            const particleCount = 40;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = Math.random() * 2 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.left = `${Math.random() * 100}%`;
+
+                const duration = Math.random() * 15 + 10;
+                particle.animate([
+                    { transform: 'translateY(0) scale(1)', opacity: 0.1 },
+                    { transform: `translateY(-${Math.random() * 50 + 20}vh) scale(1.5)`, opacity: 0.3 },
+                    { transform: 'translateY(0) scale(1)', opacity: 0.1 }
+                ], {
+                    duration: duration * 1000,
+                    iterations: Infinity,
+                    easing: 'ease-in-out'
+                });
+
+                container.appendChild(particle);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+
+    <!-- ── Floating AI Chat Button (all pages) ── -->
+    {% if request.endpoint != 'ai_chatbot_page' %}
+    <a href="{{ url_for('ai_chatbot_page') }}" id="floatingAiBtn"
+       title="Chat with Eventer AI"
+       style="
+         position: fixed;
+         bottom: 30px; left: 30px;
+         width: 58px; height: 58px;
+         border-radius: 50%;
+         background: linear-gradient(135deg, #9333ea, var(--primary));
+         display: flex; align-items: center; justify-content: center;
+         font-size: 1.4rem;
+         box-shadow: 0 8px 25px rgba(147,51,234,0.5);
+         z-index: 999;
+         text-decoration: none;
+         transition: all 0.3s ease;
+         animation: bot-pulse 3s infinite;
+       ">
+      🤖
+    </a>
+    <style>
+      @keyframes bot-pulse {
+        0%, 100% { box-shadow: 0 8px 25px rgba(147,51,234,0.5); transform: scale(1); }
+        50% { box-shadow: 0 8px 35px rgba(0,238,255,0.6); transform: scale(1.08); }
+      }
+      #floatingAiBtn:hover {
+        transform: scale(1.15) !important;
+      }
+    </style>
+    {% endif %}
+    <!-- ===== NEURO BACKGROUND LAYERS ===== -->
+    <div class="bg-gradient"></div>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+    </div>
+    <canvas id="neural-bg"></canvas>
+    <script src="{{ url_for('static', filename='js/background.js') }}"></script>
+    <!-- ===================================== -->
+</body>
+</html>

@@ -1,0 +1,405 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .predict-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .category-hero {
+    height: 35vh;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%),
+    url("{{ url_for('static', filename='image/landing_hero.png') }}");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -120px;
+    margin-bottom: 2rem;
+  }
+
+  .predict-header { text-align: center; margin-bottom: 3rem; }
+
+  .predict-form-container { padding: 3rem; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .full-width { grid-column: span 2; }
+
+  /* ── Result Card ── */
+  .result-section {
+    margin-top: 3rem;
+    animation: slide-up 0.5s ease;
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .price-hero-card {
+    background: linear-gradient(135deg, rgba(0,238,255,0.12) 0%, rgba(147,51,234,0.12) 100%);
+    border: 1px solid rgba(0,238,255,0.3);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .price-hero-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(0,238,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .predicted-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+
+  .predicted-price {
+    font-size: 3.2rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--primary), #9333ea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .confidence-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,255,136,0.1);
+    border: 1px solid rgba(0,255,136,0.3);
+    color: #00ff88;
+    padding: 0.3rem 1rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  /* Price Range Bar */
+  .range-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .range-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .range-low { color: #4ade80; font-weight: 700; }
+  .range-high { color: #ff4081; font-weight: 700; }
+
+  .range-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    margin: 0.8rem 0;
+  }
+
+  .range-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, var(--primary), #ff4081);
+    border-radius: 50px;
+    width: 100%;
+  }
+
+  .range-pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--primary);
+    border: 2px solid var(--primary);
+  }
+
+  /* Drivers */
+  .drivers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .driver-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+
+  .driver-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .driver-title.up { color: #4ade80; }
+  .driver-title.down { color: #ff4081; }
+
+  .driver-item {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    margin-bottom: 0.7rem;
+    line-height: 1.4;
+  }
+
+  /* Venue Mood */
+  .mood-section {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .mood-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+  }
+
+  .mood-tag {
+    background: rgba(147,51,234,0.1);
+    border: 1px solid rgba(147,51,234,0.3);
+    color: #c084fc;
+    padding: 0.4rem 0.9rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .mood-tag:hover {
+    background: rgba(147,51,234,0.2);
+    transform: scale(1.03);
+  }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .full-width { grid-column: span 1; }
+    .drivers-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="category-hero">
+  <div class="hero-text animate-fade-in">
+    <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 0;">AI Budget Predictor</h1>
+  </div>
+</div>
+
+<div class="predict-wrapper">
+  <div class="predict-header animate-fade-in">
+    <p style="color: var(--text-dim); font-size: 1.05rem;">
+      Harness AI to estimate the cost of your premium event — with price range, confidence interval, and cost driver explainability.
+    </p>
+  </div>
+
+  <div class="glass-card predict-form-container animate-fade-in">
+    <form method="POST" action="/predict_price" id="predictForm">
+      <div class="form-grid">
+        <div class="input-group">
+          <label>Event Type</label>
+          <select name="Event_Title" required id="Event_Title">
+            <option value="Marriage" {% if form_data and form_data.Event_Title == 'Marriage' %}selected{% endif %}>Marriage</option>
+            <option value="Birthday" {% if form_data and form_data.Event_Title == 'Birthday' %}selected{% endif %}>Birthday</option>
+            <option value="Meetup" {% if form_data and form_data.Event_Title == 'Meetup' %}selected{% endif %}>Meetup</option>
+            <option value="Corporate Event" {% if form_data and form_data.Event_Title == 'Corporate Event' %}selected{% endif %}>Corporate Event</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Location</label>
+          <select name="Location" required id="Location">
+            <option {% if form_data and form_data.Location == 'Mumbai' %}selected{% endif %}>Mumbai</option>
+            <option {% if form_data and form_data.Location == 'Bangalore' %}selected{% endif %}>Bangalore</option>
+            <option {% if form_data and form_data.Location == 'Bhubaneswar' %}selected{% endif %}>Bhubaneswar</option>
+            <option {% if form_data and form_data.Location == 'Cuttack' %}selected{% endif %}>Cuttack</option>
+            <option {% if form_data and form_data.Location == 'Hyderabad' %}selected{% endif %}>Hyderabad</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Guest Capacity</label>
+          <input type="number" name="Capacity" required placeholder="e.g. 500" id="Capacity"
+                 value="{{ form_data.Capacity if form_data else '100' }}">
+        </div>
+
+        <div class="input-group">
+          <label>Event Date</label>
+          <input type="date" name="Date" required min="{{today}}" id="Date"
+                 value="{{ form_data.Date if form_data else today }}">
+        </div>
+
+        <div class="input-group">
+          <label>Catering Service</label>
+          <select name="Catering" required id="Catering">
+            <option value="Yes" {% if form_data and form_data.Catering == 'Yes' %}selected{% endif %}>Yes</option>
+            <option value="No" {% if form_data and form_data.Catering == 'No' or not form_data %}selected{% endif %}>No</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Entertainment</label>
+          <select name="Entertainment" required id="Entertainment">
+            <option value="Yes" {% if form_data and form_data.Entertainment == 'Yes' %}selected{% endif %}>Yes</option>
+            <option value="No" {% if form_data and form_data.Entertainment == 'No' or not form_data %}selected{% endif %}>No</option>
+          </select>
+        </div>
+
+        <div class="full-width" style="margin-top: 1rem;">
+          <button type="submit" class="btn-premium btn-primary" style="width: 100%; font-size: 1.1rem;">
+            🤖 Generate AI Prediction with Insights
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- ── RESULTS ── -->
+    <div id="resultArea" style="{% if not confidence_data %}display: none;{% endif %}">
+      {% if confidence_data %}
+      <div class="result-section">
+        <div class="price-hero-card">
+          <div class="predicted-label">AI Estimated Investment</div>
+          <div class="predicted-price" id="res-price">₹{{ "{:,.0f}".format(confidence_data.prediction) }}</div>
+          <div class="confidence-badge">
+            <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%;"></span>
+            <span id="res-conf">{{ confidence_data.confidence }}</span> Confidence · ±<span id="res-var">{{ "{:.0f}".format(confidence_data.variance_pct) }}</span>% variance
+          </div>
+        </div>
+
+        <div class="range-card">
+          <p style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">
+            💰 Price Range Estimate
+          </p>
+          <div class="range-header">
+            <span class="range-low" id="res-low">₹{{ "{:,.0f}".format(confidence_data.lower) }} (Optimistic)</span>
+            <span class="range-high" id="res-high">₹{{ "{:,.0f}".format(confidence_data.upper) }} (Premium)</span>
+          </div>
+          <div class="range-bar">
+            <div class="range-fill"></div>
+            <div class="range-pointer"></div>
+          </div>
+        </div>
+
+        <div class="drivers-grid">
+          <div class="driver-card">
+            <div class="driver-title up">📈 Factors Increasing Price</div>
+            <div id="res-drivers-up">
+              {% for driver in confidence_data.drivers_up %}
+              <div class="driver-item">{{ driver }}</div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="driver-card">
+            <div class="driver-title down">📉 Factors Reducing Price</div>
+            <div id="res-drivers-down">
+              {% for driver in confidence_data.drivers_down %}
+              <div class="driver-item">{{ driver }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="{{ url_for('create') }}" class="btn-premium btn-primary" style="padding: 1rem 3rem;">
+              Proceed to Booking →
+            </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('predictForm');
+    const resultArea = document.getElementById('resultArea');
+    const inputs = form.querySelectorAll('input, select');
+
+    async function updatePrediction() {
+        const formData = new FormData(form);
+        try {
+            const response = await fetch('/predict_price', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await response.json();
+            
+            // Show result area if hidden
+            resultArea.style.display = 'block';
+
+            // Update Price
+            document.getElementById('res-price').innerText = '₹' + data.prediction.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+            document.getElementById('res-conf').innerText = data.confidence;
+            document.getElementById('res-var').innerText = Math.round(data.variance_pct);
+            
+            // Update Range
+            document.getElementById('res-low').innerText = '₹' + data.lower.toLocaleString('en-IN', { maximumFractionDigits: 0 }) + ' (Optimistic)';
+            document.getElementById('res-high').innerText = '₹' + data.upper.toLocaleString('en-IN', { maximumFractionDigits: 0 }) + ' (Premium)';
+            
+            // Update Drivers
+            const upContainer = document.getElementById('res-drivers-up');
+            const downContainer = document.getElementById('res-drivers-down');
+            
+            upContainer.innerHTML = data.drivers_up.length > 0 
+                ? data.drivers_up.map(d => `<div class="driver-item">${d}</div>`).join('')
+                : '<div class="driver-item" style="color: var(--text-dim);">No major cost drivers detected.</div>';
+                
+            downContainer.innerHTML = data.drivers_down.length > 0 
+                ? data.drivers_down.map(d => `<div class="driver-item">${d}</div>`).join('')
+                : '<div class="driver-item" style="color: var(--text-dim);">No cost reduction factors detected.</div>';
+
+        } catch (error) {
+            console.error('Prediction update failed:', error);
+        }
+    }
+
+    // Update on any input change
+    inputs.forEach(input => {
+        input.addEventListener('change', updatePrediction);
+        if (input.tagName === 'INPUT') {
+            input.addEventListener('input', updatePrediction);
+        }
+    });
+});
+</script>
+{% endblock %}

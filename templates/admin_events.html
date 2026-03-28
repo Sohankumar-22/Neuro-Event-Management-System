@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .admin-container { max-width: 1400px; margin: 0 auto; padding: 4rem 2rem; }
+    .event-manager { display: grid; grid-template-columns: 400px 1fr; gap: 4rem; }
+    .form-card { padding: 3rem; height: fit-content; position: sticky; top: 120px; }
+    .event-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+    .event-item { padding: 0; overflow: hidden; }
+    .event-img-small { height: 150px; width: 100%; object-fit: cover; }
+    .event-details-small { padding: 1.5rem; }
+    .delete-btn { color: #ff4081; text-decoration: none; font-size: 0.8rem; margin-top: 1rem; display: inline-block; }
+</style>
+
+<div class="admin-container">
+    <div style="margin-bottom: 5rem;">
+        <h1 class="gradient-text" style="font-size: 3rem;">Event Architect</h1>
+        <p style="color: var(--text-dim);">Design and deploy custom event experiences</p>
+    </div>
+
+    <div class="event-manager">
+        <!-- Add Event Form -->
+        <div class="glass-card form-card animate-fade-in">
+            <h3 style="margin-bottom: 2rem; font-family: 'Playfair Display';">New Blueprint</h3>
+            <form action="" method="POST">
+                <div class="input-group">
+                    <label>Event Category / Title</label>
+                    <input type="text" name="title" placeholder="e.g. Marriage, Birthday, or Custom" required>
+                </div>
+                <div class="input-group">
+                    <label>Venue Location</label>
+                    <input type="text" name="location" placeholder="e.g. Royal Palace, Mumbai" required>
+                </div>
+                <div class="input-group">
+                    <label>Narrative Description</label>
+                    <textarea name="description" rows="4" placeholder="Describe the atmosphere..." required style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 0.8rem; border-radius: 4px;"></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Guest Capacity</label>
+                    <input type="number" name="capacity" required>
+                </div>
+                <div class="input-group">
+                    <label>Event Grouping Type</label>
+                    <input type="text" name="type" placeholder="e.g. luxury, basic, corporate" required>
+                </div>
+                <div class="input-group">
+                    <label>Image Filename (optional)</label>
+                    <input type="text" name="image" placeholder="e.g. marriage/couple_1.jpg" value="marriage/couple_1.jpg">
+                </div>
+                
+                <button type="submit" class="btn-premium btn-primary" style="width: 100%; margin-top: 2rem;">DE-PLOY BLUEPRINT</button>
+            </form>
+        </div>
+
+        <!-- Current Custom Events -->
+        <div>
+            <h3 style="margin-bottom: 2.5rem; font-family: 'Playfair Display';">Active Blueprints (Custom)</h3>
+            <div class="event-list-grid">
+                {% for e in custom_events %}
+                <div class="glass-card event-item animate-fade-in">
+                    <img src="{{ url_for('static', filename='image/' + e.image) if e.image else 'https://via.placeholder.com/400x200' }}" class="event-img-small">
+                    <div class="event-details-small">
+                        <span style="font-size: 0.7rem; color: var(--primary); font-weight: 700;">{{ e.title | upper }}</span>
+                        <h4 style="margin: 0.5rem 0;">{{ e.location }}</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-dim);">{{ e.description[:80] }}...</p>
+                        <div style="margin-top: 1rem; font-size: 0.8rem; color: white;">👥 Capacity: {{ e.capacity }}</div>
+                        <a href="{{ url_for('delete_event', id=e.id) }}" class="delete-btn" onclick="return confirm('Archive this blueprint forever?')">ARCHIVE BLUEPRINT</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="glass-card" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
+                    <p style="color: var(--text-dim);">No custom blueprints found. Static events from events.py are still active.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div style="margin-top: 4rem; padding: 2rem; background: rgba(0,238,255,0.05); border-left: 3px solid var(--primary); border-radius: 4px;">
+                <p style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.6;">
+                    <strong>Note:</strong> Events added here will be automatically merged with the heritage collection in the user catalog.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
