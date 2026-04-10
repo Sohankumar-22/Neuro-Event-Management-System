@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .rsvp-container { max-width: 600px; margin: 5rem auto; padding: 2rem; }
+    .rsvp-card { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 3rem; text-align: center; }
+</style>
+
+<div class="rsvp-container">
+    <div class="rsvp-card animate-fade-in">
+        <span class="ai-badge" style="margin-bottom: 1.5rem;">GUEST RSVP</span>
+        <h2 style="color: white; margin-bottom: 1rem;">You're Invited!</h2>
+        <p style="color: var(--text-dim); margin-bottom: 2rem;">Please confirm your attendance for the <b>{{ booking.title }}</b> in {{ booking.location }}.</p>
+        
+        <form method="POST">
+            <div class="form-group" style="text-align: left; margin-bottom: 1.5rem;">
+                <label style="color: var(--text-dim); display: block; margin-bottom: 0.5rem;">Full Name</label>
+                <input type="text" name="guest_name" class="chat-input" style="width: 100%;" required>
+            </div>
+            <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
+                <label style="color: var(--text-dim); display: block; margin-bottom: 0.5rem;">Dietary Preferences / Notes</label>
+                <textarea name="dietary" class="chat-input" style="width: 100%; height: 80px;" placeholder="None, Veg, Non-Veg, Allergies..."></textarea>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem;">Confirm Attendance</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

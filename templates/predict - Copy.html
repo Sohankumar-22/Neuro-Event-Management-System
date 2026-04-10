@@ -1,0 +1,441 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .predict-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .category-hero {
+    height: 35vh;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%),
+    url("{{ url_for('static', filename='image/landing_hero.png') }}");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -120px;
+    margin-bottom: 2rem;
+  }
+
+  .predict-header { text-align: center; margin-bottom: 3rem; }
+
+  .predict-form-container { padding: 3rem; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .full-width { grid-column: span 2; }
+
+  /* ── Result Card ── */
+  .result-section {
+    margin-top: 3rem;
+    animation: slide-up 0.5s ease;
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .price-hero-card {
+    background: linear-gradient(135deg, rgba(0,238,255,0.12) 0%, rgba(147,51,234,0.12) 100%);
+    border: 1px solid rgba(0,238,255,0.3);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .price-hero-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(0,238,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .predicted-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+  }
+
+  .predicted-price {
+    font-size: 3.2rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--primary), #9333ea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .confidence-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,255,136,0.1);
+    border: 1px solid rgba(0,255,136,0.3);
+    color: #00ff88;
+    padding: 0.3rem 1rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  /* Price Range Bar */
+  .range-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .range-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .range-low { color: #4ade80; font-weight: 700; }
+  .range-high { color: #ff4081; font-weight: 700; }
+
+  .range-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
+    margin: 0.8rem 0;
+  }
+
+  .range-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, var(--primary), #ff4081);
+    border-radius: 50px;
+    width: 100%;
+  }
+
+  .range-pointer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--primary);
+    border: 2px solid var(--primary);
+  }
+
+  /* Drivers */
+  .drivers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .driver-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+
+  .driver-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .driver-title.up { color: #4ade80; }
+  .driver-title.down { color: #ff4081; }
+
+  .driver-item {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    margin-bottom: 0.7rem;
+    line-height: 1.4;
+  }
+
+  /* Venue Mood */
+  .mood-section {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .mood-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+  }
+
+  .mood-tag {
+    background: rgba(147,51,234,0.1);
+    border: 1px solid rgba(147,51,234,0.3);
+    color: #c084fc;
+    padding: 0.4rem 0.9rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .mood-tag:hover {
+    background: rgba(147,51,234,0.2);
+    transform: scale(1.03);
+  }
+
+  /* Loading State */
+  .prediction-loading {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+    animation: pulse-opac 1.5s infinite;
+  }
+  @keyframes pulse-opac {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  .spinner-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+  .dot {
+    width: 12px; height: 12px;
+    background: var(--primary);
+    border-radius: 50%;
+    animation: bounce 0.6s infinite alternate;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    to { transform: translateY(-10px); }
+  }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .full-width { grid-column: span 1; }
+    .drivers-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="category-hero">
+  <div class="hero-text animate-fade-in">
+    <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 0;">AI Budget Predictor</h1>
+  </div>
+</div>
+
+<div class="predict-wrapper">
+  <div class="predict-header animate-fade-in">
+    <p style="color: var(--text-dim); font-size: 1.05rem;">
+      Harness AI to estimate the cost of your premium event — with price range, confidence interval, and cost driver explainability.
+    </p>
+  </div>
+
+  <div class="glass-card predict-form-container animate-fade-in">
+    <form id="predictForm" onsubmit="return false;">
+      <div class="form-grid">
+        <div class="input-group">
+          <label>Event Type</label>
+          <select name="EventType" required id="EventType">
+            <option value="Marriage">Marriage</option>
+            <option value="Birthday">Birthday</option>
+            <option value="Meetup">Meetup</option>
+            <option value="Corporate">Corporate Event</option>
+            <option value="Fashion Show">Fashion Show</option>
+            <option value="Sports">Sports Tournament</option>
+            <option value="Festival">Cultural Festival</option>
+            <option value="Charity">Charity Gala</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Location</label>
+          <select name="Location" required id="Location">
+            <option>Mumbai</option>
+            <option>Bangalore</option>
+            <option>Delhi</option>
+            <option>Kolkata</option>
+            <option>Chennai</option>
+            <option>Hyderabad</option>
+            <option>Pune</option>
+            <option>Ahmedabad</option>
+            <option>Jaipur</option>
+            <option>Goa</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Guest Count</label>
+          <input type="number" name="GuestCount" required placeholder="e.g. 500" id="GuestCount" value="100">
+        </div>
+
+        <div class="input-group">
+          <label>Food Quality</label>
+          <select name="FoodQuality" required id="FoodQuality">
+            <option value="Premium">Premium (Standard)</option>
+            <option value="Elite">Elite (Luxury)</option>
+            <option value="Basic">Basic (Budget)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Decor Style</label>
+          <select name="DecorLevel" required id="DecorLevel">
+            <option value="Elite">Elite (Grand)</option>
+            <option value="Classic">Classic (Minimalist)</option>
+            <option value="Royal">Royal (Traditional)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Entertainment</label>
+          <select name="Entertainment" required id="Entertainment">
+            <option value="Live Music">Live Music</option>
+            <option value="DJ">DJ Party</option>
+            <option value="Visual Show">Visual/Laser Show</option>
+            <option value="None">None</option>
+          </select>
+        </div>
+
+        <div class="full-width" style="margin-top: 1rem;">
+          <button type="button" onclick="updatePrediction()" class="btn-premium btn-primary" style="width: 100%; font-size: 1.1rem;">
+            🤖 Generate AI Prediction with Insights
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- ── LOADING ── -->
+    <div id="predictionLoading" class="prediction-loading">
+        <div class="spinner-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <p style="color: var(--primary); font-size: 0.9rem; font-weight: 700; letter-spacing: 2px;">NEURAL ENGINE COMPUTING...</p>
+    </div>
+
+    <!-- ── RESULTS ── -->
+    <div id="resultArea" style="display: none;">
+      <div class="result-section">
+        <div class="price-hero-card">
+          <div class="predicted-label">AI Estimated Investment</div>
+          <div class="predicted-price" id="res-price">Analyzing...</div>
+          <div class="confidence-badge">
+            <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%;"></span>
+            <span id="res-conf">High</span> Confidence
+          </div>
+        </div>
+
+        <div class="mood-section">
+          <p style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">
+            ✨ Venue Mood Intelligence
+          </p>
+          <div class="mood-tags">
+            <span class="mood-tag" id="venueMoodTag">Analyzing</span>
+            <span style="color: var(--text-dim); font-size: 0.85rem; margin-left: 10px;" id="venueMoodDesc">...</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <p id="locationAnalysis" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1rem;"></p>
+            <a href="{{ url_for('book') }}" class="btn-premium btn-primary" style="padding: 1rem 3rem;">
+              Proceed to Booking →
+            </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('predictForm');
+    const resultArea = document.getElementById('resultArea');
+    const inputs = form.querySelectorAll('input, select');
+
+    window.updatePrediction = async function() {
+        const predictionLoading = document.getElementById('predictionLoading');
+        const resPrice = document.getElementById('res-price');
+        const venueMoodTag = document.getElementById('venueMoodTag');
+        const venueMoodDesc = document.getElementById('venueMoodDesc');
+
+        if (!predictionLoading) return; // Guard
+        
+        predictionLoading.style.display = 'block';
+        resultArea.style.opacity = '0.3';
+        
+        try {
+            const response = await fetch('/predict_price', {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await response.json();
+            
+            predictionLoading.style.display = 'none';
+            resultArea.style.opacity = '1';
+            resultArea.style.display = 'block';
+
+            if (data.status === "success") {
+                if (resPrice) resPrice.innerText = '₹' + data.price;
+                if (venueMoodTag) venueMoodTag.textContent = data.mood.tag;
+                if (venueMoodDesc) venueMoodDesc.textContent = data.mood.desc;
+            } else {
+                if (resPrice) resPrice.innerText = 'Analyzing...';
+            }
+
+        } catch (error) {
+            console.error('AI Link Error:', error);
+            if (predictionLoading) predictionLoading.style.display = 'none';
+            resultArea.style.opacity = '1';
+        }
+    }
+
+    // ── DEBOUNCE LOGIC ──
+    let debounceTimer;
+    function debouncedUpdate() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(window.updatePrediction, 400); 
+    }
+
+    // Update on any input change with debounce
+    inputs.forEach(input => {
+        if (input.tagName === 'INPUT') {
+            input.addEventListener('input', debouncedUpdate);
+        } else {
+            input.addEventListener('change', debouncedUpdate);
+        }
+    });
+});
+</script>
+{% endblock %}

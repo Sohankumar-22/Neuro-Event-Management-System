@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .auth-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        padding: 2rem;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 500px;
+        padding: 3rem;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .auth-header h2 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--text-dim);
+    }
+
+    .auth-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 500px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .full-width {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="glass-card auth-card animate-fade-in">
+        <div class="auth-header">
+            <h2 class="gradient-text">Join Eventer</h2>
+            <p style="color: var(--text-dim);">Start planning your extraordinary moments</p>
+        </div>
+
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    {{ form.username.label }}
+                    {{ form.username(placeholder='johndoe') }}
+                </div>
+
+                <div class="input-group full-width">
+                    {{ form.email.label }}
+                    {{ form.email(placeholder='email@example.com') }}
+                </div>
+
+                <div class="input-group">
+                    {{ form.password.label }}
+                    {{ form.password(placeholder='••••••••') }}
+                </div>
+
+                <div class="input-group">
+                    {{ form.confirm_password.label }}
+                    {{ form.confirm_password(placeholder='••••••••') }}
+                </div>
+
+                <div class="full-width" style="margin-top: 1rem;">
+                    {{ form.submit(class_="btn-premium btn-primary", style="width: 100%;") }}
+                </div>
+            </div>
+
+            <div class="auth-footer">
+                <p>Already a member? <a href="{{ url_for('login') }}">Log In</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

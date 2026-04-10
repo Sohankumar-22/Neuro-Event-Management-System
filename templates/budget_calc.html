@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .calc-container { max-width: 900px; margin: 4rem auto; padding: 2rem; }
+    .calc-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 3rem; backdrop-filter: blur(20px); }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+    .result-item { background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border-left: 4px solid var(--primary); }
+    .stat-label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .stat-val { font-size: 1.5rem; font-weight: 800; color: white; }
+</style>
+
+<div class="calc-container">
+    <div class="section-title animate-fade-in" style="text-align: center; margin-bottom: 3rem;">
+        <span class="ai-badge">AI FINANCIAL ENGINE</span>
+        <h1 class="gradient-text" style="font-size: 3.5rem;">Event Budget Calculator</h1>
+        <p style="color: var(--text-dim);">Get a precision estimate for your upcoming luxury experience.</p>
+    </div>
+
+    <div class="calc-card animate-fade-in" style="animation-delay: 0.1s;">
+        <form method="POST">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.8rem; color: var(--text-dim);">Event Type</label>
+                    <select name="event_type" class="chat-input" style="width: 100%;" required>
+                        <option value="Marriage">Marriage / Wedding</option>
+                        <option value="Birthday">Birthday Bash</option>
+                        <option value="Corporate">Corporate Summit</option>
+                        <option value="Meetup">Social Meetup</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.8rem; color: var(--text-dim);">Guest Count</label>
+                    <input type="number" name="guests" class="chat-input" style="width: 100%;" placeholder="e.g. 200" required>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.8rem; color: var(--text-dim);">Host City</label>
+                    <select name="city" class="chat-input" style="width: 100%;" required>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Bhubaneswar">Bhubaneswar</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 0.8rem; color: var(--text-dim);">Service Tier</label>
+                    <select name="quality" class="chat-input" style="width: 100%;" required>
+                        <option value="Standard">Standard (Silver)</option>
+                        <option value="Premium">Premium (Gold)</option>
+                        <option value="Luxury">Elite (Onyx)</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1.2rem; font-size: 1rem;">Calculate Estimate &rarr;</button>
+        </form>
+
+        {% if result %}
+        <div class="animate-fade-in" style="margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--border);">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h3 style="color: var(--text-dim); margin-bottom: 1rem;">ESTIMATED TOTAL BUDGET</h3>
+                <div style="font-size: 4rem; font-weight: 900; color: var(--primary);">₹{{ "{:,.2f}".format(result.total) }}</div>
+            </div>
+
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="stat-label">Venue & Logistics</div>
+                    <div class="stat-val">₹{{ "{:,.0f}".format(result.venue) }}</div>
+                </div>
+                <div class="result-item">
+                    <div class="stat-label">Catering (5-Star)</div>
+                    <div class="stat-val">₹{{ "{:,.0f}".format(result.catering) }}</div>
+                </div>
+                <div class="result-item">
+                    <div class="stat-label">Decor & Theme</div>
+                    <div class="stat-val">₹{{ "{:,.0f}".format(result.decor) }}</div>
+                </div>
+                <div class="result-item">
+                    <div class="stat-label">Photography & Media</div>
+                    <div class="stat-val">₹{{ "{:,.0f}".format(result.photography) }}</div>
+                </div>
+            </div>
+            
+            <p style="margin-top: 2rem; color: var(--text-dim); font-size: 0.85rem; text-align: center;">
+                *Note: These are estimations generated by Eventer AI based on current market trends.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

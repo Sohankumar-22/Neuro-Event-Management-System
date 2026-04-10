@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .quiz-container { max-width: 800px; margin: 4rem auto; padding: 2rem; }
+    .quiz-card { background: var(--glass); border: 1px solid var(--border); border-radius: 24px; padding: 4rem; backdrop-filter: blur(20px); text-align: center; }
+    .quiz-option { 
+        background: rgba(255,255,255,0.05); 
+        border: 1px solid var(--border); 
+        padding: 1.5rem; 
+        border-radius: 12px; 
+        cursor: pointer; 
+        transition: 0.3s;
+        margin-bottom: 1rem;
+        display: block;
+        width: 100%;
+        text-align: left;
+        color: white;
+    }
+    .quiz-option:hover { background: rgba(0, 238, 255, 0.1); border-color: var(--primary); }
+    input[type="radio"]:checked + .quiz-option { background: var(--primary); color: black; border-color: var(--primary); }
+    .hidden-radio { display: none; }
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-card animate-fade-in">
+        {% if not recommendation %}
+        <span class="ai-badge" style="margin-bottom: 2rem;">AUTONOMOUS PLANNER</span>
+        <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 1rem;">AI Event Blueprint Quiz</h1>
+        <p style="color: var(--text-dim); margin-bottom: 3rem;">Answer 3 questions and our AI will architect your perfect event package.</p>
+        
+        <form method="POST">
+            <div style="margin-bottom: 3rem; text-align: left;">
+                <h3 style="color: white; margin-bottom: 1.5rem;">1. What is your estimated budget range?</h3>
+                <label>
+                    <input type="radio" name="budget" value="High" class="hidden-radio" required>
+                    <div class="quiz-option">💎 High (Luxury & Elite)</div>
+                </label>
+                <label>
+                    <input type="radio" name="budget" value="Mid" class="hidden-radio">
+                    <div class="quiz-option">✨ Mid-Range (Premium Quality)</div>
+                </label>
+                <label>
+                    <input type="radio" name="budget" value="Low" class="hidden-radio">
+                    <div class="quiz-option">🌱 Budget-Friendly (Standard)</div>
+                </label>
+            </div>
+
+            <div style="margin-bottom: 3rem; text-align: left;">
+                <h3 style="color: white; margin-bottom: 1.5rem;">2. Expected guest count?</h3>
+                <label>
+                    <input type="radio" name="guests" value=">200" class="hidden-radio" required>
+                    <div class="quiz-option">🏛️ Large (200+ Guests)</div>
+                </label>
+                <label>
+                    <input type="radio" name="guests" value="50-200" class="hidden-radio">
+                    <div class="quiz-option">🏠 Medium (50-200 Guests)</div>
+                </label>
+                <label>
+                    <input type="radio" name="guests" value="<50" class="hidden-radio">
+                    <div class="quiz-option">🍵 Intimate (Under 50)</div>
+                </label>
+            </div>
+
+            <div style="margin-bottom: 3rem; text-align: left;">
+                <h3 style="color: white; margin-bottom: 1.5rem;">3. Desired event vibe?</h3>
+                <label>
+                    <input type="radio" name="vibe" value="Classic" class="hidden-radio" required>
+                    <div class="quiz-option">🕯️ Classic / Heritage</div>
+                </label>
+                <label>
+                    <input type="radio" name="vibe" value="Modern" class="hidden-radio">
+                    <div class="quiz-option">🏙️ Modern / Tech-Driven</div>
+                </label>
+                <label>
+                    <input type="radio" name="vibe" value="Outdoor" class="hidden-radio">
+                    <div class="quiz-option">🌿 Natural / Outdoor</div>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1.5rem; font-size: 1.1rem;">Generate My Blueprint &rarr;</button>
+        </form>
+        {% else %}
+        <div class="animate-fade-in">
+            <span class="ai-badge" style="background: var(--primary); color: black;">MATCH FOUND</span>
+            <h2 style="font-size: 2.5rem; color: white; margin: 2rem 0 1rem;">{{ recommendation.title }}</h2>
+            <p style="color: var(--text-dim); font-size: 1.2rem; margin-bottom: 3rem;">{{ recommendation.desc }}</p>
+            
+            <div class="glass-card" style="padding: 2rem; border-color: var(--primary); margin-bottom: 3rem;">
+                <h4 style="color: var(--primary); margin-bottom: 1rem;">Why this works:</h4>
+                <p style="font-size: 0.9rem; color: var(--text-dim);">Based on your preferences for a {{ recommendation.title }}, our AI has identified that the synergy between your budget and desired vibe is best served by this specific architectural blueprint.</p>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <a href="{{ url_for('discover') }}" class="btn-premium" style="flex: 1; padding: 1rem;">View Matching Venues</a>
+                <a href="{{ url_for('planner_quiz') }}" style="flex: 1; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; color: white; text-decoration: none; line-height: 2.5;">Restart Quiz</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

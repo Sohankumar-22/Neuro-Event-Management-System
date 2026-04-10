@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+  .admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    color: white;
+  }
+
+  th {
+    text-align: left;
+    padding: 1.5rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    font-size: 0.95rem;
+  }
+
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--primary);
+  }
+</style>
+
+<div class="admin-container">
+  <div class="admin-header animate-fade-in">
+    <h1 class="gradient-text">Member Registry</h1>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn-premium btn-outline">Back to Command Center</a>
+  </div>
+
+  <div class="glass-card table-wrapper animate-fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email Address</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td><strong>{{ u.username }}</strong></td>
+          <td>{{ u.email }}</td>
+          <td><span style="color: #4CAF50;">● Verified</span></td>
+          <td>
+            <a href="{{ url_for('delete_user', email=u.email) }}" 
+               onclick="return confirm('WARNING: This will permanently delete this user and all their bookings. Proceed?')"
+               style="color: #ff4081; text-decoration: none; font-size: 0.8rem; border-bottom: 1px solid rgba(255,64,129,0.3);">REVOKE ACCESS</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" style="text-align: center; padding: 3rem; color: var(--text-dim);">No members detected.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

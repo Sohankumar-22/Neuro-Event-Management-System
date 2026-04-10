@@ -1,0 +1,341 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --gold: #D4AF37;
+        --gold-light: #F0D060;
+        --gold-dark: #A08820;
+        --charity-accent: #c5a059;
+    }
+
+    .gallery-wrapper {
+        color: #f0ead6;
+        font-family: 'Montserrat', sans-serif;
+        padding-bottom: 5rem;
+    }
+
+    .gallery-header {
+        text-align: center;
+        padding: 5rem 2rem 3rem;
+        background: linear-gradient(180deg, rgba(20, 20, 20, 0.6) 0%, transparent 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: -30px;
+    }
+
+    .gallery-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 300;
+        letter-spacing: 3px;
+        margin-bottom: 1rem;
+    }
+
+    .gallery-header em {
+        color: var(--gold);
+        font-style: normal;
+        font-weight: 700;
+    }
+
+    .loc-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        padding: 2rem;
+        position: sticky;
+        top: 130px;
+        z-index: 100;
+        background: rgba(10, 10, 12, 0.9);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .loc-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        border: 1px solid rgba(197, 160, 89, 0.2);
+        background: rgba(197, 160, 89, 0.02);
+        color: rgba(255, 255, 255, 0.6);
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+    }
+
+    .loc-btn:hover, .loc-btn.active {
+        border-color: var(--gold);
+        color: var(--gold);
+        background: rgba(212, 175, 55, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .loc-btn .flag { font-size: 1.2rem; }
+
+    .loc-section {
+        display: none;
+        padding: 5rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .loc-section.active {
+        display: block;
+    }
+
+    .sect-header {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 4rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        align-items: center;
+    }
+
+    .sect-flag {
+        font-size: 4rem;
+        line-height: 1;
+    }
+
+    .sect-info h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.8rem;
+        color: var(--gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .venue-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .photo-card {
+        position: relative;
+        aspect-ratio: 4/3;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        transition: 0.5s ease;
+    }
+
+    .photo-card:hover {
+        transform: scale(1.02) translateY(-8px);
+        border-color: var(--gold-dark);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .photo-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+    }
+
+    .photo-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .photo-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 3rem 1.5rem 1.5rem;
+        background: linear-gradient(to top, rgba(0,0,0,1) 0%, transparent 100%);
+    }
+
+    .badge-num {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: var(--gold);
+        color: #000;
+        font-weight: 800;
+        font-size: 0.7rem;
+        padding: 5px 12px;
+        border-radius: 2px;
+        z-index: 5;
+    }
+
+    .dl-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.85);
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        padding: 10px 16px;
+        font-size: 0.75rem;
+        border-radius: 4px;
+        opacity: 0;
+        transition: 0.3s;
+        text-decoration: none;
+        z-index: 5;
+    }
+
+    .photo-card:hover .dl-btn {
+        opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+        .sect-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        .sect-flag { font-size: 3rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-wrapper animate-fade-in">
+    <div class="gallery-header">
+        <h1 class="animate-float">🎗️ Charity Galas — <em>Regional Elegance</em></h1>
+        <p>A NEURAL ARCHIVE OF PHILANTHROPIC EXCELLENCE BY SECTOR</p>
+    </div>
+
+    <nav class="loc-nav">
+        <button class="loc-btn active" data-loc="newyork"><span class="flag">🇺🇸</span> NYC</button>
+        <button class="loc-btn" data-loc="london"><span class="flag">🇬🇧</span> London</button>
+        <button class="loc-btn" data-loc="dubai"><span class="flag">🇦🇪</span> Dubai</button>
+        <button class="loc-btn" data-loc="mumbai"><span class="flag">🇮🇳</span> Mumbai</button>
+        <button class="loc-btn" data-loc="la"><span class="flag">🇺🇸</span> LA</button>
+        <button class="loc-btn" data-loc="outdoor"><span class="flag">🌿</span> Outdoor</button>
+    </nav>
+
+    <!-- New York -->
+    <section class="loc-section active" id="newyork">
+        <div class="sect-header">
+            <div class="sect-flag">🇺🇸</div>
+            <div class="sect-info">
+                <span class="venue-label">MANHATTAN BALLROOMS • BLACK-TIE FUNDRAISERS</span>
+                <h2>New York City Galas</h2>
+                <p style="color: rgba(255,255,255,0.6); max-width: 600px;">Managing large-scale philanthropic dinners in the heart of Manhattan with elite security and logistics.</p>
+            </div>
+        </div>
+        <div class="photo-grid">
+            <div class="photo-card">
+                <div class="badge-num">#01</div>
+                <img src="https://images.pexels.com/photos/1267324/pexels-photo-1267324.jpeg" alt="Gala">
+                <a href="#" class="dl-btn">↓ Save Reference</a>
+                <div class="photo-overlay">
+                    <span style="font-weight: 700; color: white;">St Paul's Black Tie Gala</span>
+                    <span style="font-size: 0.7rem; color: var(--gold); letter-spacing: 2px;">MANHATTAN • ANNUAL DINNER</span>
+                </div>
+            </div>
+            <div class="photo-card">
+                <div class="badge-num">#02</div>
+                <img src="https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg" alt="NYC Guests">
+                <div class="photo-overlay">
+                    <span style="font-weight: 700; color: white;">Elite NY Gala Assembly</span>
+                    <span style="font-size: 0.7rem; color: var(--gold); letter-spacing: 2px;">NYC • CHARITY SOIREE</span>
+                </div>
+            </div>
+            <div class="photo-card">
+                <div class="badge-num">#03</div>
+                <img src="https://images.pexels.com/photos/1579253/pexels-photo-1579253.jpeg" alt="Candlelit">
+                <div class="photo-overlay">
+                    <span style="font-weight: 700; color: white;">Candlelit Fundraiser Hall</span>
+                    <span style="font-size: 0.7rem; color: var(--gold); letter-spacing: 2px;">WALL STREET • BENEFIT EVENT</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mumbai -->
+    <section class="loc-section" id="mumbai">
+        <div class="sect-header">
+            <div class="sect-flag">🇮🇳</div>
+            <div class="sect-info">
+                <span class="venue-label">MARRIOTT • TAJ BALLROOMS • B-TOWN GALAS</span>
+                <h2>Mumbai Charity Galas</h2>
+                <p style="color: rgba(255,255,255,0.6); max-width: 600px;">High-society fundraisers and celebrity auctions in the financial capital of India.</p>
+            </div>
+        </div>
+        <div class="photo-grid">
+            <div class="photo-card">
+                <div class="badge-num">#01</div>
+                <img src="https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg" alt="Mumbai Gala">
+                <div class="photo-overlay">
+                    <span style="font-weight: 700; color: white;">Marriott Luxe Charity Night</span>
+                    <span style="font-size: 0.7rem; color: var(--gold); letter-spacing: 2px;">MUMBAI • RED CARPET FUNDRAISER</span>
+                </div>
+            </div>
+            <div class="photo-card">
+                <div class="badge-num">#02</div>
+                <img src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg" alt="Soho House">
+                <div class="photo-overlay">
+                    <span style="font-weight: 700; color: white;">Soho House Giving Circle</span>
+                    <span style="font-size: 0.7rem; color: var(--gold); letter-spacing: 2px;">JUHU • EXCLUSIVE DONOR GALA</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Outdoor -->
+    <section class="loc-section" id="outdoor">
+        <div class="sect-header">
+            <div class="sect-flag">🌿</div>
+            <div class="sect-info">
+                <h2>Garden & Estate Galas</h2>
+                <p style="color: rgba(255,255,255,0.6); max-width: 600px;">Bespoke marquee setups and open-air fundraisers in estate gardens.</p>
+            </div>
+        </div>
+        <div class="photo-grid">
+            <div class="photo-card">
+                <div class="badge-num">#01</div>
+                <img src="https://images.pexels.com/photos/1619317/pexels-photo-1619317.jpeg" alt="Marquee">
+                <div class="photo-overlay">
+                    <span style="font-weight: 700; color: white;">Elite Garden Marquee Setup</span>
+                    <span style="font-size: 0.7rem; color: var(--gold); letter-spacing: 2px;">PRIVATE ESTATE • CHARITY LUNCH</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Other -->
+    <section class="loc-section" id="other">
+         <div style="text-align: center; padding: 4rem; opacity: 0.5;">
+             <h3>Regional data is being populated from the Neuro Engine...</h3>
+         </div>
+    </section>
+</div>
+
+<script>
+    document.querySelectorAll('.loc-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.loc-section').forEach(s => s.classList.remove('active'));
+            
+            this.classList.add('active');
+            const target = this.dataset.loc;
+            const section = document.getElementById(target);
+            
+            if (section) {
+                section.classList.add('active');
+            } else {
+                document.getElementById('other').classList.add('active');
+            }
+            
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        });
+    });
+</script>
+{% endblock %}

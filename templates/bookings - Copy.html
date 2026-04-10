@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    .bookings-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+    }
+
+    .bookings-header {
+        text-align: center;
+        margin-bottom: 6rem;
+    }
+
+    .bookings-header h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .booking-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 3rem;
+    }
+
+    .booking-card {
+        padding: 0;
+        overflow: hidden;
+        border-radius: 24px;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .booking-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 238, 255, 0.15);
+    }
+
+    .card-banner {
+        height: 120px;
+        background: linear-gradient(135deg, var(--primary) 0%, #9333ea 100%);
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .category-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: white;
+    }
+
+    .card-body {
+        padding: 2.5rem;
+    }
+
+    .client-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .event-title {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 2rem;
+        display: block;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        font-size: 0.95rem;
+    }
+
+    .info-label {
+        color: var(--text-dim);
+    }
+
+    .info-value {
+        color: white;
+        font-weight: 600;
+    }
+
+    .special-note {
+        margin-top: 2rem;
+        padding: 1.2rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border-left: 3px solid var(--primary);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--text-dim);
+    }
+
+    .status-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        margin-top: 2rem;
+        color: #4ade80;
+    }
+
+    .empty-portfolio {
+        text-align: center;
+        padding: 8rem 2rem;
+    }
+</style>
+
+<div class="bookings-container">
+    <div class="bookings-header animate-fade-in">
+        <h1 class="gradient-text">Elite Event Portfolio</h1>
+        <p style="color: var(--text-dim); font-size: 1.1rem;">A curated collection of your upcoming luxury experiences.
+        </p>
+    </div>
+
+    {% if bookings %}
+    <div class="booking-grid">
+        {% for b in bookings %}
+        <div class="glass-card booking-card animate-fade-in">
+            <div class="card-banner">
+                <span class="category-badge">{{ b.title }}</span>
+                <span style="font-size: 1.5rem;">✨</span>
+            </div>
+
+            <div class="card-body">
+                <span class="event-title">{{ b.event_extra or 'Premium Selection' }}</span>
+                <h3 class="client-name">{{ b.customer_name or session['username'] }}</h3>
+
+                <div class="info-row">
+                    <span class="info-label">📍 Location</span>
+                    <span class="info-value">{{ b.location }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📅 Date</span>
+                    <span class="info-value">{{ b.date_booked }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">👥 Guests</span>
+                    <span class="info-value">{{ b.guests }} Elite Guests</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">💳 Payment</span>
+                    <span class="info-value">{{ b.payment_method or 'Card' }}</span>
+                </div>
+
+                {% if b.special_requirements %}
+                <div class="special-note">
+                    <strong>Special Request:</strong> {{ b.special_requirements }}
+                </div>
+                {% endif %}
+
+                <div class="status-tag">
+                    <span
+                        style="width: 8px; height: 8px; background: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80;"></span>
+                    CONFIRMED & SECURED
+                </div>
+
+                <div style="margin-top: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <a href="{{ url_for('chat') }}" class="btn-premium btn-primary"
+                        style="font-size: 0.8rem; text-align: center; text-decoration: none;">
+                        Concierge
+                    </a>
+                    <button class="btn-premium btn-outline" style="font-size: 0.8rem;" onclick="window.print()">
+                        Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card empty-portfolio animate-fade-in">
+        <div style="font-size: 5rem; margin-bottom: 2rem;">🏛️</div>
+        <h3 style="font-size: 2rem; margin-bottom: 1rem;">Your portfolio is currently empty</h3>
+        <p
+            style="color: var(--text-dim); margin-bottom: 3rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+            Begin your journey by creating your first masterpiece event with Neuro Eventer's elite planning tools.
+        </p>
+        <a href="{{ url_for('create') }}" class="btn-premium btn-primary" style="padding: 1rem 3rem;">Inaugurate New
+            Event</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

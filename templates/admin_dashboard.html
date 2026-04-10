@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  :root {
+    --prime-bg: #030408;
+    --prime-card: rgba(13, 17, 23, 0.98);
+    --prime-border: rgba(197, 160, 89, 0.35);
+    --gold: #c5a059;
+    --gold-gradient: linear-gradient(135deg, #c5a059 0%, #8e6d31 100%);
+    --neon-cyan: #06b6d4;
+    --neon-green: #10b981;
+    --text-silver: #94a3b8;
+  }
+
+  .ceo-grid { display: grid; grid-template-columns: 320px 1fr; gap: 0; width: 100%; min-height: calc(100vh - 130px); }
+  .command-sidebar { background: var(--prime-card); border-right: 1px solid var(--prime-border); padding: 2.5rem 1.5rem; display: flex; flex-direction: column; box-shadow: 20px 0 50px rgba(0,0,0,0.5); z-index: 100; }
+
+  .ceo-identity { text-align: center; margin-bottom: 2.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid rgba(197, 160, 89, 0.2); }
+  .ceo-frame { width: 110px; height: 110px; margin: 0 auto 15px; position: relative; padding: 5px; border: 2px solid var(--gold); border-radius: 50%; box-shadow: 0 0 40px rgba(197, 160, 89, 0.4); }
+  .ceo-portrait { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #111; }
+  .ceo-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; color: #fff; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+  .ceo-rank { font-size: 0.65rem; color: var(--gold); letter-spacing: 4px; font-weight: 900; margin-top: 5px; text-transform: uppercase; }
+
+  .nav-list .nav-item { display: flex; align-items: center; gap: 12px; padding: 15px 20px; color: var(--text-silver); text-decoration: none; border-radius: 12px; transition: 0.4s; font-weight: 800; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; margin-bottom: 5px; }
+  .nav-item:hover { color: #fff; background: rgba(197, 160, 89, 0.08); }
+  .nav-item.active { background: var(--gold-gradient); color: #000; box-shadow: 0 10px 20px rgba(197, 160, 89, 0.2); }
+
+  .console-bridge { flex: 1; padding: 40px; display: flex; flex-direction: column; gap: 30px; }
+  .central-hub { display: flex; justify-content: center; align-items: center; background: var(--prime-card); border: 1px solid var(--prime-border); padding: 25px; border-radius: 100px; margin-bottom: 10px; }
+  .btn-deploy-main { background: var(--gold-gradient); color: #000; border: none; padding: 14px 40px; border-radius: 50px; font-weight: 900; font-size: 0.9rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; animation: pulseGold 2s infinite; }
+  @keyframes pulseGold { 0% { box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(197, 160, 89, 0); } 100% { box-shadow: 0 0 0 0 rgba(197, 160, 89, 0); } }
+
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .stat-tile { background: var(--prime-card); border: 1px solid var(--prime-border); padding: 25px; border-radius: 20px; border-left: 4px solid var(--gold); }
+  .stat-tile .label { font-size: 0.6rem; color: var(--text-silver); text-transform: uppercase; letter-spacing: 3px; }
+  .stat-tile .val { font-size: 2rem; font-family: 'Space Grotesk', sans-serif; font-weight: 800; color: #fff; }
+
+  .data-pane { background: var(--prime-card); border: 1px solid var(--prime-border); border-radius: 35px; padding: 35px; min-height: 450px; }
+  .data-pane h2 { font-size: 1.1rem; margin-bottom: 2rem; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid rgba(197, 160, 89, 0.1); padding-bottom: 1rem; }
+  
+  .view-pane { display: none; width: 100%; flex-direction: column; gap: 30px; }
+  .view-pane.active { display: flex; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+  /* GAUGE STYLES */
+  .sentiment-box { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; }
+  .gauge-circle { width: 150px; height: 150px; border-radius: 50%; border: 10px solid rgba(16,185,129,0.1); border-top: 10px solid var(--neon-green); position: relative; animation: rotateGauge 10s linear infinite; }
+  @keyframes rotateGauge { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+  /* WORLD MAP SVG STYLES */
+  .world-map-wrap { background: #000; border: 1px solid var(--prime-border); border-radius: 20px; height: 350px; position: relative; overflow: hidden; }
+  .map-pin { position: absolute; width: 8px; height: 8px; background: var(--neon-cyan); border-radius: 50%; box-shadow: 0 0 15px var(--neon-cyan); animation: ping 2s infinite; }
+  @keyframes ping { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
+
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+  .modal-box { background: #0d1117; border: 1px solid var(--prime-border); width: 600px; padding: 50px; border-radius: 40px; box-shadow: 0 0 100px rgba(0,0,0,1); }
+</style>
+
+<div class="ceo-grid">
+  <aside class="command-sidebar">
+    <div class="ceo-identity">
+        <div class="ceo-frame"><img src="{{ url_for('static', filename='extra/sohan_ceo_original.jpg') }}" class="ceo-portrait" alt="CEO"></div>
+        <div class="ceo-name">Sohan Kumar Swain</div>
+        <div class="ceo-rank">Supreme Commander</div>
+    </div>
+    <div class="nav-list">
+      <div class="nav-item active" data-target="v-dash">📡 Terminal Overview</div>
+      <div class="nav-item" data-target="v-fleet">🏟️ Asset Fleet</div>
+      <div class="nav-item" data-target="v-ledger">🧾 Capital Ledger</div>
+      <div class="nav-item" data-target="v-users">👥 VIP Entities</div>
+      <div class="nav-item" data-target="v-analytics">📉 Future Forecast</div>
+      <div class="nav-item" data-target="v-core">⚙️ System Core</div>
+      <div class="nav-item" id="btnOpenBroadcast" style="background:rgba(197,160,89,0.1); border:1px dashed var(--gold); border-radius:10px; margin-top:20px; color:var(--gold);">📢 Global Broadcast</div>
+      <a href="{{ url_for('admin_logout') }}" class="nav-item" style="margin-top: auto; color: #ff6666; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 25px;">🛰️ Relinquish Control</a>
+    </div>
+  </aside>
+
+  <main class="console-bridge">
+    <div class="central-hub">
+        <div style="margin-right: 40px;"><p style="font-size: 0.6rem; color: var(--text-silver); margin:0;">FLEET STATUS</p><p style="font-size: 0.9rem; color: #10b981; font-weight: 800; margin:0;" id="liveStatus">ACTIVE & SYNCED</p></div>
+        <button class="btn-deploy-main" id="btnLaunchPortal">+ INITIATE NEW DEPLOYMENT</button>
+        <div style="margin-left: 40px; text-align: right;"><p style="font-size: 0.6rem; color: var(--text-silver); margin:0;">CAPITAL NODE</p><p style="font-size: 0.9rem; color: var(--gold); font-weight: 800; margin:0;">₹{{ total_bookings * 5000 / 100000 }}M SECURED</p></div>
+    </div>
+
+    <!-- DASHBOARD (Tactical War Room + Sentiment) -->
+    <div id="v-dash" class="view-pane active">
+        <div class="stat-row">
+            <div class="stat-tile"><div class="label">Total Capital</div><div class="val">₹{{ total_bookings * 5000 / 100000 }}M</div></div>
+            <div class="stat-tile"><div class="label">Operational Units</div><div class="val">{{ total_bookings }}</div></div>
+            <div class="stat-tile"><div class="label">System Pulse</div><div class="val" style="color:var(--neon-cyan);">NOMINAL</div></div>
+            <div class="stat-tile"><div class="label">AI Sync</div><div class="val" style="color:var(--neon-green);">ACTIVE</div></div>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:30px;">
+            <div class="data-pane" style="grid-column: span 2;">
+                <h2>LOGISTICAL PULSESTREAM</h2>
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead><tr style="border-bottom: 2px solid var(--prime-border);"><th style="padding:15px; text-align:left;">CLIENT</th><th>SECTOR</th><th>STATUS</th></tr></thead>
+                    <tbody>{% for b in recent_bookings[:6] %}<tr><td style="padding:15px;"><b>{{ b.customer_name or b.user_email }}</b></td><td>{{ b.title }}</td><td style="color:var(--neon-green);">VERIFIED</td></tr>{% endfor %}</tbody>
+                </table>
+            </div>
+            
+            <div class="data-pane">
+                <h2 style="font-size:0.85rem; color:var(--gold);">AI SENTIMENT HUB</h2>
+                <div class="sentiment-box">
+                    <div class="gauge-circle"><div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; transform:rotate(-45deg); font-size:1.5rem; font-weight:900; color:#fff;">98%</div></div>
+                    <p style="margin-top:20px; font-weight:800; color:var(--neon-green);">CITIZEN SATISFACTION: ELITE</p>
+                    <small style="color:var(--text-silver);">AI Inference: "Minimal threat detected. Empire stability is at an 8-month high."</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLEET (WORLD MAP) -->
+    <div id="v-fleet" class="view-pane">
+        <div class="data-pane">
+            <h2>GLOBAL FLEET DEPLOYMENT MAP</h2>
+            <div class="world-map-wrap">
+                <!-- Simulated Tactical Map -->
+                <div class="map-pin" style="top:25%; left:20%;"></div> <!-- US -->
+                <div class="map-pin" style="top:30%; left:50%;"></div> <!-- EU -->
+                <div class="map-pin" style="top:45%; left:75%;"></div> <!-- ASIA -->
+                <div class="map-pin" style="top:70%; left:85%;"></div> <!-- AUS -->
+                <div style="background: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg') center/contain no-repeat; opacity: 0.1; width: 100%; height: 100%;"></div>
+                <div style="position:absolute; bottom:20px; right:30px; background:rgba(0,0,0,0.8); padding:15px; border:1px solid var(--neon-cyan); border-radius:10px;">
+                    <p style="font-size:0.65rem; color:var(--neon-cyan); margin:0;">> ASIA_NODE: ACTIVE</p>
+                    <p style="font-size:0.65rem; color:var(--neon-cyan); margin:0;">> EU_NODE: ACTIVE</p>
+                </div>
+            </div>
+            <div style="margin-top:30px;">
+                <h3 style="font-size:0.9rem; color:#fff;">LIVE DEPLOYED UNITS</h3>
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
+                    {% for e in custom_events %}
+                    <div style="padding:15px; background:rgba(255,255,255,0.02); border-radius:15px; border-left:3px solid var(--neon-cyan);">
+                        <b>{{ e.title }}</b><br><small style="color:var(--text-silver);">{{ e.location or 'Global Node' }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEDGER, VIP, etc follows same pattern... -->
+    <div id="v-ledger" class="view-pane"><div class="data-pane"><h2>CAPITAL LEDGER</h2><table style="width:100%;"><thead><tr><th>ID</th><th>VOLUME</th><th>STATUS</th></tr></thead><tbody>{% for b in all_bookings[:10] %}<tr><td>TXON-{{b.id+1000}}</td><td>₹{{b.price or 0}}</td><td style="color:var(--neon-green);">SETTLED</td></tr>{% endfor %}</tbody></table></div></div>
+    <div id="v-users" class="view-pane"><div class="data-pane"><h2>VIP DIRECTORY</h2><div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">{% for u in users %}<div class="vip-card"><div><b>{{ u.username or u.email }}</b><br><small>Verified Entity</small></div></div>{% endfor %}</div></div></div>
+    <div id="v-analytics" class="view-pane"><div class="data-pane"><h2>NEURAL FORECAST</h2><canvas id="growthChart" height="150"></canvas></div></div>
+  </main>
+</div>
+
+<!-- GLOBAL BROADCAST UNIT -->
+<div class="modal-overlay" id="broadcastModal">
+    <div class="modal-box">
+        <h2 style="color:var(--gold); text-transform:uppercase; letter-spacing:4px;">Commander's Broadcast Unit</h2>
+        <p style="color:var(--text-silver); font-size:0.8rem; margin:15px 0 30px;">Transmit a secure directive to all users in the Global Fleet.</p>
+        <textarea id="broadcastMsg" style="width:100%; height:150px; background:rgba(0,0,0,0.4); border:1px solid var(--prime-border); border-radius:15px; padding:20px; color:#fff; font-family:'Space Grotesk'; font-size:1.1rem;" placeholder="Enter message for the masses..."></textarea>
+        <div id="broadcastStatus" style="display:none; margin:20px 0; padding:15px; background:rgba(16,185,129,0.1); border:1px solid var(--neon-green); color:var(--neon-green); font-family:monospace; font-size:0.8rem;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:20px; margin-top:30px;">
+            <button class="btn-deploy-main" style="background:#222; color:#fff;" onclick="document.getElementById('broadcastModal').style.display='none'">Deactivate</button>
+            <button class="btn-deploy-main" id="btnTransmit">TRANSMIT TO ALL</button>
+        </div>
+    </div>
+</div>
+
+<!-- DEPLOY PORTAL -->
+<div class="modal-overlay" id="deployPortal"><div class="modal-box"><h2 style="color:var(--gold);">NEW DEPLOYMENT</h2><div id="formBody"><input type="text" id="evTitle" style="width:100%; padding:15px; margin:20px 0; background:rgba(0,0,0,0.4); border:1px solid var(--prime-border); color:#fff;" placeholder="Unit Identifier"></div><div id="logMatrix" style="display:none; height:150px; background:#000; padding:20px; color:var(--neon-green); font-family:monospace;"></div><div style="display:flex; justify-content:flex-end; gap:20px;"><button class="btn-deploy-main" style="background:#222; color:#fff;" onclick="this.parentElement.parentElement.parentElement.style.display='none'">Abort</button><button class="btn-deploy-main" id="btnConfirmDeploy">AUTHORIZE</button></div></div></div>
+
+<script>
+  const navs = document.querySelectorAll('.nav-list .nav-item');
+  const panes = document.querySelectorAll('.view-pane');
+  navs.forEach(n => { n.onclick = () => { if(n.id==='btnOpenBroadcast') return; navs.forEach(x => x.classList.remove('active')); n.classList.add('active'); panes.forEach(p => p.classList.remove('active')); document.getElementById(n.getAttribute('data-target')).classList.add('active'); if(n.getAttribute('data-target')==='v-analytics') initChart(); } });
+
+  document.getElementById('btnOpenBroadcast').onclick = () => { document.getElementById('broadcastModal').style.display='flex'; }
+  document.getElementById('btnLaunchPortal').onclick = () => { document.getElementById('deployPortal').style.display='flex'; }
+
+  document.getElementById('btnTransmit').onclick = () => {
+    const msg = document.getElementById('broadcastMsg').value;
+    if(!msg) return;
+    document.getElementById('broadcastStatus').style.display = 'block';
+    document.getElementById('broadcastStatus').innerHTML = '> Initializing Global Signal...';
+    fetch('/admin/broadcast', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg}) })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('broadcastStatus').innerHTML = `> ${data.log}<br>> BROADCAST COMPLETE.`;
+        setTimeout(() => document.getElementById('broadcastModal').style.display='none', 3000);
+    });
+  }
+
+  function initChart() { if(window.exec) return; new Chart(document.getElementById('growthChart'), { type: 'line', data: { labels:['Jun','Jul','Aug','Sep','Oct','Nov'], datasets:[{label:'Growth', data:[40,55,60,85,90,120], borderColor:'#c5a059', fill:true, backgroundColor:'rgba(197,160,89,0.1)'}] } }); window.exec=true; }
+  document.getElementById('btnConfirmDeploy').onclick = () => {
+    const t=document.getElementById('evTitle').value; if(!t) return;
+    document.getElementById('formBody').style.display='none'; document.getElementById('logMatrix').style.display='block';
+    ["Syncing...","Success."].forEach((s,i)=>setTimeout(()=>document.getElementById('logMatrix').innerHTML+="<div>> "+s+"</div>",i*800));
+    fetch('/admin/deploy_event', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title:t}) }).then(()=>setTimeout(()=>location.reload(), 3000));
+  }
+</script>
+{% endblock %}

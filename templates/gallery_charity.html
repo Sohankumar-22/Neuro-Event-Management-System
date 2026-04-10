@@ -1,0 +1,504 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --gold: #D4AF37;
+        --gold-light: #F0D060;
+        --gold-dark: #A08820;
+        --charity-accent: #c5a059;
+        --glass: rgba(255, 255, 255, 0.03);
+    }
+
+    .gallery-wrapper {
+        color: #f0ead6;
+        font-family: 'Outfit', sans-serif;
+        padding-bottom: 5rem;
+    }
+
+    .gallery-header {
+        text-align: center;
+        padding: 6rem 2rem 4rem;
+        background: linear-gradient(180deg, rgba(20, 20, 20, 0.8) 0%, transparent 100%);
+        border-bottom: 1px solid rgba(197, 160, 89, 0.1);
+    }
+
+    .gallery-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-weight: 300;
+        letter-spacing: 4px;
+        margin-bottom: 1rem;
+        text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .gallery-header em {
+        color: var(--gold);
+        font-style: normal;
+        font-weight: 700;
+    }
+
+    /* User Guide Section */
+    .user-guide {
+        max-width: 1000px;
+        margin: -2rem auto 3rem;
+        background: rgba(10, 10, 15, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(197, 160, 89, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+
+    .guide-step {
+        text-align: center;
+    }
+
+    .guide-step .icon {
+        font-size: 1.5rem;
+        color: var(--gold);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .guide-step h4 {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .guide-step p {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.4;
+    }
+
+    .loc-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        padding: 1.5rem;
+        position: sticky;
+        top: 80px;
+        z-index: 100;
+        background: rgba(10, 10, 12, 0.95);
+        backdrop-filter: blur(30px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .loc-btn {
+        padding: 12px 28px;
+        border: 1px solid rgba(197, 160, 89, 0.2);
+        background: transparent;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 2.5px;
+        cursor: pointer;
+        border-radius: 50px;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        text-transform: uppercase;
+    }
+
+    .loc-btn:hover, .loc-btn.active {
+        border-color: var(--gold);
+        color: white;
+        background: rgba(212, 175, 55, 0.15);
+        box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .loc-section {
+        display: none;
+        padding: 4rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .loc-section.active {
+        display: block;
+        animation: fadeInUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sect-header {
+        margin-bottom: 4rem;
+        border-left: 2px solid var(--gold);
+        padding-left: 2rem;
+    }
+
+    .sect-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 3rem;
+        color: var(--gold);
+        margin-bottom: 1rem;
+    }
+
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 30px;
+    }
+
+    /* Enhanced Photo Card */
+    .photo-card {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        background: #111;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .photo-card:hover {
+        transform: translateY(-15px);
+        border-color: var(--gold);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+    }
+
+    .card-img-wrapper {
+        position: relative;
+        aspect-ratio: 16/10;
+        overflow: hidden;
+    }
+
+    .photo-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1.2s ease;
+    }
+
+    .photo-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .card-actions {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 20;
+        opacity: 0;
+        transform: translateX(20px);
+        transition: all 0.4s ease;
+    }
+
+    .photo-card:hover .card-actions {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .action-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        background: var(--gold);
+        color: black;
+        border-color: var(--gold);
+    }
+
+    .action-btn.active {
+        color: #ff4d4d;
+        border-color: #ff4d4d;
+    }
+
+    .card-content {
+        padding: 2rem;
+        background: linear-gradient(0deg, #0a0a0c 0%, #1a1a1c 100%);
+    }
+
+    .card-meta {
+        font-size: 0.65rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 0.8rem;
+        display: block;
+    }
+
+    .card-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 1.5rem;
+    }
+
+    .book-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 28px;
+        background: transparent;
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .book-btn:hover {
+        background: var(--gold);
+        color: black;
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    }
+
+    /* Planning Tips Section */
+    .planning-info {
+        max-width: 1400px;
+        margin: 6rem auto;
+        padding: 4rem;
+        background: linear-gradient(135deg, rgba(197, 160, 89, 0.05) 0%, transparent 100%);
+        border: 1px solid rgba(197, 160, 89, 0.1);
+        border-radius: 30px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+
+    .planning-info h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .tip-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .tip-item {
+        margin-bottom: 20px;
+        padding-left: 30px;
+        position: relative;
+    }
+
+    .tip-item::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: var(--gold);
+        font-weight: bold;
+    }
+
+    @media (max-width: 992px) {
+        .user-guide { grid-template-columns: 1fr; margin: 2rem; }
+        .photo-grid { grid-template-columns: 1fr; }
+        .planning-info { grid-template-columns: 1fr; padding: 2rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-wrapper">
+    <div class="gallery-header">
+        <h1 class="animate-fade-in">🎗️ Charity — <em>Inspiration Archive</em></h1>
+        <p style="letter-spacing: 5px; opacity: 0.6; font-size: 0.8rem;">DISCOVER. SAVE. PLAN. TRANSFORM.</p>
+    </div>
+
+    <!-- User Guidance Section -->
+    <div class="user-guide">
+        <div class="guide-step">
+            <span class="icon">🔍</span>
+            <h4>Browse Portfolio</h4>
+            <p>Explore high-impact galas categorized by global regions & settings.</p>
+        </div>
+        <div class="guide-step" style="border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">
+            <span class="icon">❤️</span>
+            <h4>Save Favorites</h4>
+            <p>Click the heart icon to save any aesthetic to your private wishlist.</p>
+        </div>
+        <div class="guide-step">
+            <span class="icon">⚡</span>
+            <h4>Quick Book</h4>
+            <p>Found the perfect vibe? One click triggers a pre-filled booking form.</p>
+        </div>
+    </div>
+
+    <nav class="loc-nav">
+        <button class="loc-btn active" data-loc="newyork">New York City</button>
+        <button class="loc-btn" data-loc="mumbai">Mumbai Express</button>
+        <button class="loc-btn" data-loc="london">Elite London</button>
+        <button class="loc-btn" data-loc="outdoor">Luxury Gardens</button>
+    </nav>
+
+    <!-- New York Section -->
+    <section class="loc-section active" id="newyork">
+        <div class="sect-header">
+            <span style="font-size: 0.7rem; letter-spacing: 3px; color: rgba(255,255,255,0.4);">MANHATTAN SECTOR • V01</span>
+            <h2>New York City Galas</h2>
+            <p style="color: rgba(255,255,255,0.6); max-width: 600px;">Experience the height of Manhattan's philanthropic circuit with black-tie dinners and elite fundraisers.</p>
+        </div>
+        <div class="photo-grid">
+            <div class="photo-card" data-title="St Paul's Black Tie Gala" data-loc="NYC • Manhattan Hall">
+                <div class="card-img-wrapper">
+                    <img src="https://images.pexels.com/photos/1267324/pexels-photo-1267324.jpeg" alt="Gala">
+                    <div class="card-actions">
+                        <button class="action-btn wishlist-toggle" title="Add to Wishlist">❤️</button>
+                        <a href="https://images.pexels.com/photos/1267324/pexels-photo-1267324.jpeg" download class="action-btn" title="Download HQ">↓</a>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <span class="card-meta">Manhattan • Annual Dinner</span>
+                    <h3 class="card-title">St Paul's Black Tie Gala</h3>
+                    <a href="{{ url_for('book', title='Charity Gala', location='NYC Ballroom') }}" class="book-btn">
+                        Orchestrate Similar Event <span>→</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="photo-card" data-title="Elite NY Charity Soirée" data-loc="NYC • Wall Street">
+                <div class="card-img-wrapper">
+                    <img src="https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg" alt="NYC Guests">
+                    <div class="card-actions">
+                        <button class="action-btn wishlist-toggle">❤️</button>
+                        <a href="#" class="action-btn">↓</a>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <span class="card-meta">Wall Street • Benefit Night</span>
+                    <h3 class="card-title">Elite NY Charity Soirée</h3>
+                    <a href="{{ url_for('book', title='Charity Gala', location='Wall Street Venue') }}" class="book-btn">
+                        Orchestrate Similar Event <span>→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mumbai Section -->
+    <section class="loc-section" id="mumbai">
+        <div class="sect-header">
+            <span style="font-size: 0.7rem; letter-spacing: 3px; color: rgba(255,255,255,0.4);">MUMBAI SECTOR • V02</span>
+            <h2>Mumbai Excellence</h2>
+            <p style="color: rgba(255,255,255,0.6); max-width: 600px;">High-society fundraisers and celebrity auctions in the grandest ballrooms of Mumbai.</p>
+        </div>
+        <div class="photo-grid">
+            <div class="photo-card" data-title="Marriott Luxe Charity Night" data-loc="Mumbai • Marriott">
+                <div class="card-img-wrapper">
+                    <img src="https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg" alt="Mumbai Gala">
+                    <div class="card-actions">
+                        <button class="action-btn wishlist-toggle">❤️</button>
+                        <a href="#" class="action-btn">↓</a>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <span class="card-meta">Marriott • Celebrity Gala</span>
+                    <h3 class="card-title">Marriott Luxe Charity Night</h3>
+                    <a href="{{ url_for('book', title='Charity Gala', location='Marriott Mumbai') }}" class="book-btn">
+                        Orchestrate Similar Event <span>→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Planning Tips -->
+    <div class="planning-info animate-on-scroll">
+        <div class="info-text">
+            <h3>How to use these references?</h3>
+            <p style="color: rgba(255,255,255,0.5); margin-bottom: 2rem;">Planning a charity event requires balancing mission with elegance. Use these tips to guide your next steps:</p>
+            <ul class="tip-list">
+                <li class="tip-item"><strong>Mission Alignment:</strong> Choose a venue that reflects your cause's values.</li>
+                <li class="tip-item"><strong>Donor Comfort:</strong> Prioritize seating arrangements that facilitate conversation.</li>
+                <li class="tip-item"><strong>Tech Integration:</strong> Use our AI Predictor to estimate fundraising ROI.</li>
+                <li class="tip-item"><strong>Aesthetic Sync:</strong> Save images to your wishlist to show our planners your vision.</li>
+            </ul>
+        </div>
+        <div class="info-cta" style="text-align: center;">
+            <div style="padding: 4rem; border: 1px solid rgba(197, 160, 89, 0.2); border-radius: 20px; background: rgba(197, 160, 89, 0.05);">
+                <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">✨</span>
+                <h4>Ready to make an impact?</h4>
+                <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 2rem;">Our AI provides real-time budget optimization for all charity events.</p>
+                <a href="{{ url_for('predict') }}" class="book-btn" style="background: var(--gold); color: black;">Try AI Predictor</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Navigation Logic
+    document.querySelectorAll('.loc-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.loc-section').forEach(s => s.classList.remove('active'));
+            this.classList.add('active');
+            const target = this.dataset.loc;
+            const section = document.getElementById(target);
+            if (section) section.classList.add('active');
+            window.scrollTo({ top: 500, behavior: 'smooth' });
+        });
+    });
+
+    // Wishlist Toggle via AJAX
+    document.querySelectorAll('.wishlist-toggle').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const card = this.closest('.photo-card');
+            const data = {
+                title: card.dataset.title,
+                location: card.dataset.loc,
+                type: 'Charity'
+            };
+
+            try {
+                const response = await fetch('/wishlist/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.status === 'added') {
+                    this.classList.add('active');
+                    this.style.color = '#ff4d4d';
+                    alert('Saved to Wishlist!');
+                } else if (result.status === 'removed') {
+                    this.classList.remove('active');
+                    this.style.color = 'white';
+                    alert('Removed from Wishlist');
+                } else if (result.error) {
+                    alert('Please login to save favorites');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,456 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --saffron: #FF6B00;
+        --royal-blue: #002366;
+        --emerald: #50C878;
+        --magenta: #FF00FF;
+        --accent: var(--saffron);
+    }
+
+    .gallery-wrapper {
+        color: #f5ede0;
+        font-family: 'Outfit', sans-serif;
+        padding-bottom: 5rem;
+    }
+
+    .gallery-header {
+        text-align: center;
+        padding: 7rem 2rem 5rem;
+        background: radial-gradient(circle at center, rgba(255, 107, 0, 0.1) 0%, transparent 70%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .gallery-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(3rem, 7vw, 5rem);
+        font-weight: 300;
+        letter-spacing: -1px;
+        margin-bottom: 1rem;
+    }
+
+    .gallery-header em {
+        color: var(--saffron);
+        font-style: normal;
+        font-weight: 800;
+        text-shadow: 0 0 30px rgba(255, 107, 0, 0.4);
+    }
+
+    /* Cultural Guide Section */
+    .cultural-guide {
+        max-width: 1100px;
+        margin: -3rem auto 4rem;
+        background: rgba(15, 15, 20, 0.9);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 107, 0, 0.3);
+        border-radius: 30px;
+        padding: 2.5rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+        position: relative;
+        z-index: 20;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    }
+
+    .guide-item {
+        text-align: center;
+    }
+
+    .guide-item .icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .guide-item h4 {
+        color: var(--saffron);
+        font-size: 1rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+    }
+
+    .guide-item p {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.6;
+    }
+
+    .fest-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        padding: 2rem;
+        position: sticky;
+        top: 80px;
+        z-index: 100;
+        background: rgba(10, 10, 15, 0.95);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .fest-btn {
+        padding: 14px 30px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03);
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        border-radius: 15px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-transform: uppercase;
+        font-size: 0.7rem;
+    }
+
+    .fest-btn:hover, .fest-btn.active {
+        border-color: var(--saffron);
+        color: white;
+        background: linear-gradient(135deg, var(--saffron), #FF8C00);
+        box-shadow: 0 10px 25px rgba(255, 107, 0, 0.3);
+        transform: translateY(-3px);
+    }
+
+    .fest-section {
+        display: none;
+        padding: 5rem 2rem;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .fest-section.active {
+        display: block;
+        animation: slideUpFade 0.8s ease-out forwards;
+    }
+
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 30px;
+    }
+
+    /* High-Impact Photo Card */
+    .photo-card {
+        position: relative;
+        border-radius: 30px;
+        overflow: hidden;
+        background: #0a0a0a;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.5s ease;
+    }
+
+    .photo-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+        border-color: var(--saffron);
+    }
+
+    .img-container {
+        position: relative;
+        aspect-ratio: 16/11;
+        overflow: hidden;
+    }
+
+    .photo-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1.5s ease;
+    }
+
+    .photo-card:hover img {
+        transform: scale(1.15);
+    }
+
+    .card-actions {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 10;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.4s ease;
+    }
+
+    .photo-card:hover .card-actions {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .action-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.85);
+        border: 1px solid rgba(255, 107, 0, 0.4);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        font-size: 1.2rem;
+    }
+
+    .action-circle:hover {
+        background: var(--saffron);
+        color: black;
+        transform: rotate(15deg);
+    }
+
+    .card-info {
+        padding: 2.5rem;
+        background: linear-gradient(0deg, #050505 0%, #151515 100%);
+    }
+
+    .info-tag {
+        font-size: 0.65rem;
+        color: var(--saffron);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        display: block;
+        font-weight: 800;
+    }
+
+    .info-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .experience-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 16px;
+        border-radius: 15px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        transition: all 0.3s;
+    }
+
+    .experience-btn:hover {
+        background: var(--saffron);
+        color: black;
+        border-color: var(--saffron);
+        box-shadow: 0 15px 30px rgba(255, 107, 0, 0.3);
+    }
+
+    @media (max-width: 968px) {
+        .cultural-guide { grid-template-columns: 1fr; margin: 2rem; }
+        .photo-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-wrapper">
+    <div class="gallery-header">
+        <h1 class="animate-fade-in">🏺 Global <em>Cultural</em> Archive</h1>
+        <p style="letter-spacing: 8px; opacity: 0.5; font-size: 0.75rem;">SENSORY JOURNEY • HERITAGE LOGISTICS • AI CURATION</p>
+    </div>
+
+    <!-- User Value Guide -->
+    <div class="cultural-guide">
+        <div class="guide-item">
+            <span class="icon">🌍</span>
+            <h4>Global Reach</h4>
+            <p>From Asian tradition to South American vibrancy, explore diverse festivals.</p>
+        </div>
+        <div class="guide-item" style="border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">
+            <span class="icon">🔖</span>
+            <h4>Save Aesthetic</h4>
+            <p>Add specific cultural moods to your wishlist for our AI to learn your taste.</p>
+        </div>
+        <div class="guide-item">
+            <span class="icon">🎭</span>
+            <h4>Live the Story</h4>
+            <p>One-click transforms any archive piece into a live planning requisition.</p>
+        </div>
+    </div>
+
+    <nav class="fest-nav">
+        <button class="fest-btn active" data-sec="global">Global Favorites</button>
+        <button class="fest-btn" data-sec="asian">Heritage India & Asia</button>
+        <button class="fest-btn" data-sec="occidental">Occidental Festivals</button>
+        <button class="fest-btn" data-sec="carnival">Carnivals & Parades</button>
+    </nav>
+
+    <!-- Global Favorites -->
+    <section class="fest-section active" id="global">
+        <div class="photo-grid">
+            <!-- Rio Carnival -->
+            <div class="photo-card" data-title="Rio Carnival Parade" data-loc="Rio de Janeiro, Brazil">
+                <div class="img-container">
+                    <img src="https://images.pexels.com/photos/1036641/pexels-photo-1036641.jpeg" alt="Rio Carnival">
+                    <div class="card-actions">
+                        <button class="action-circle wishlist-toggle">❤️</button>
+                        <a href="https://images.pexels.com/photos/1036641/pexels-photo-1036641.jpeg" download class="action-circle">↓</a>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <span class="info-tag">South America • Carnival</span>
+                    <h3 class="info-title">Rio de Janeiro Parade</h3>
+                    <a href="{{ url_for('book', title='Cultural Festival', location='Rio Carnival') }}" class="experience-btn">
+                        Replicate This Experience <span>→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Holi -->
+            <div class="photo-card" data-title="Holi Festival of Colors" data-loc="Mathura, India">
+                <div class="img-container">
+                    <img src="https://images.pexels.com/photos/2555269/pexels-photo-2555269.jpeg" alt="Holi India">
+                    <div class="card-actions">
+                        <button class="action-circle wishlist-toggle">❤️</button>
+                        <a href="#" class="action-circle">↓</a>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <span class="info-tag">India • Spring Celebration</span>
+                    <h3 class="info-title">Sacred Holi Chromatics</h3>
+                    <a href="{{ url_for('book', title='Cultural Festival', location='India Holi') }}" class="experience-btn">
+                        Replicate This Experience <span>→</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Japan Lanterns -->
+            <div class="photo-card" data-title="Kyoto Lantern Festival" data-loc="Kyoto, Japan">
+                <div class="img-container">
+                    <img src="https://images.pexels.com/photos/3408354/pexels-photo-3408354.jpeg" alt="Japan Lanterns">
+                    <div class="card-actions">
+                        <button class="action-circle wishlist-toggle">❤️</button>
+                        <a href="#" class="action-circle">↓</a>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <span class="info-tag">Japan • Obon Festival</span>
+                    <h3 class="info-title">Kyoto Floating Lanterns</h3>
+                    <a href="{{ url_for('book', title='Cultural Festival', location='Kyoto Japan') }}" class="experience-btn">
+                        Replicate This Experience <span>→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Asian Section -->
+    <section class="fest-section" id="asian">
+        <div class="photo-grid">
+            <!-- Diwali -->
+            <div class="photo-card" data-title="Deepawali Gala" data-loc="Delhi, India">
+                <div class="img-container">
+                    <img src="https://images.pexels.com/photos/5766628/pexels-photo-5766628.jpeg" alt="Diwali">
+                    <div class="card-actions">
+                        <button class="action-circle wishlist-toggle">❤️</button>
+                        <a href="#" class="action-circle">↓</a>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <span class="info-tag">India • Festival of Lights</span>
+                    <h3 class="info-title">Deepawali Heritage Gala</h3>
+                    <a href="{{ url_for('book', title='Cultural Festival', location='Delhi Diwali') }}" class="experience-btn">
+                        Replicate This Experience <span>→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Occidental Section -->
+    <section class="fest-section" id="occidental">
+        <div class="photo-grid">
+             <!-- Venice Carnival -->
+             <div class="photo-card" data-title="Venice Masquerade" data-loc="Venice, Italy">
+                <div class="img-container">
+                    <img src="https://images.pexels.com/photos/1592534/pexels-photo-1592534.jpeg" alt="Venice">
+                    <div class="card-actions">
+                        <button class="action-circle wishlist-toggle">❤️</button>
+                        <a href="#" class="action-circle">↓</a>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <span class="info-tag">Europe • Masquerade Ball</span>
+                    <h3 class="info-title">Venice Grand Carnival</h3>
+                    <a href="{{ url_for('book', title='Cultural Festival', location='Venice Italy') }}" class="experience-btn">
+                        Replicate This Experience <span>→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Navigation
+    document.querySelectorAll('.fest-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.fest-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.fest-section').forEach(s => s.classList.remove('active'));
+            
+            this.classList.add('active');
+            const target = this.dataset.sec;
+            const section = document.getElementById(target);
+            if (section) section.classList.add('active');
+            window.scrollTo({ top: 500, behavior: 'smooth' });
+        });
+    });
+
+    // Wishlist AJAX
+    document.querySelectorAll('.wishlist-toggle').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const card = this.closest('.photo-card');
+            const data = {
+                title: card.dataset.title,
+                location: card.dataset.loc,
+                type: 'Festival'
+            };
+
+            try {
+                const response = await fetch('/wishlist/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.status === 'added') {
+                    this.style.color = '#ff4d4d';
+                    alert('Culture saved to your collection!');
+                } else if (result.status === 'removed') {
+                    this.style.color = 'white';
+                    alert('Removed from collection');
+                } else if (result.error) {
+                    alert('Please login to curate your heritage profile');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
+</script>
+{% endblock %}

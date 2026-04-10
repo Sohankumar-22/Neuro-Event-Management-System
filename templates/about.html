@@ -1,0 +1,234 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap');
+
+    .about-wrapper {
+        font-family: 'Outfit', sans-serif;
+        color: white;
+        background: #08080c;
+        overflow: hidden;
+    }
+
+    .hero-legacy {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(to bottom, rgba(8,8,12,0.6), #08080c),
+                    url("{{ url_for('static', filename='image/corporate/corporate_2.jpg') }}") center/cover no-repeat;
+        position: relative;
+    }
+
+    .legacy-label {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        font-size: 1.2rem;
+        color: #c5a059;
+        letter-spacing: 4px;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+    }
+
+    .legacy-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 2rem;
+        max-width: 900px;
+    }
+
+    .scroll-hint {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.7rem;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.4);
+    }
+
+    .story-section {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 8rem 2rem;
+        text-align: center;
+    }
+
+    .story-lead {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        line-height: 1.4;
+        color: #c5a059;
+        margin-bottom: 3rem;
+        font-style: italic;
+    }
+
+    .story-body {
+        font-size: 1.1rem;
+        line-height: 2;
+        color: rgba(255,255,255,0.7);
+        text-align: justify;
+        column-count: 2;
+        column-gap: 4rem;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid rgba(197, 160, 89, 0.2);
+        border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+    }
+
+    .value-item {
+        padding: 5rem 3rem;
+        border-right: 1px solid rgba(197, 160, 89, 0.2);
+        text-align: center;
+    }
+
+    .value-item:last-child { border-right: none; }
+
+    .value-n {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: #c5a059;
+        margin-bottom: 1.5rem;
+    }
+
+    .value-t {
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: white;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .value-d {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        color: rgba(255,255,255,0.5);
+    }
+
+    .architect-section {
+        padding: 10rem 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        align-items: center;
+    }
+
+    .architect-img {
+        width: 100%;
+        aspect-ratio: 4/5;
+        background: #111;
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(197, 160, 89, 0.3);
+    }
+
+    .architect-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 1;
+    }
+
+    .architect-content {
+        padding-right: 2rem;
+    }
+
+    .quote-mark {
+        font-family: 'Playfair Display', serif;
+        font-size: 6rem;
+        color: #c5a059;
+        line-height: 0;
+        margin-bottom: 2rem;
+        display: block;
+        opacity: 0.3;
+    }
+
+    @media (max-width: 968px) {
+        .legacy-title { font-size: 3rem; }
+        .story-body { column-count: 1; }
+        .values-grid { grid-template-columns: 1fr; }
+        .value-item { border-right: none; border-bottom: 1px solid rgba(197, 160, 89, 0.2); }
+        .architect-section { grid-template-columns: 1fr; gap: 4rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-wrapper animate-fade-in">
+    <!-- Hero -->
+    <section class="hero-legacy">
+        <span class="legacy-label">The Eventer Heritage</span>
+        <h1 class="legacy-title">Sophisticated Logistics for the Modern Visionary</h1>
+        <div class="scroll-hint">Discover The Story ↓</div>
+    </section>
+
+    <!-- Narrative -->
+    <section class="story-section">
+        <h2 class="story-lead">"The story of Eventer began in a modest student workspace in 2026, when a vision for precision met the timeless demand for perfection."</h2>
+        <div class="story-body">
+            Founded by Sohan Kumar Swain, Eventer was born from a search for something that didn’t exist—the perfect intersection of artificial intelligence and high-end logistical artistry. What started as a revolutionary idea in Bhubaneswar has expanded into a world-class platform that embraces the timeless appeal of luxury service, crafted for the sophisticated client and the modern leader.
+            <br><br>
+            Eventer is more than a management tool; it's a testament to the enduring legacy of quality and the charm of doing things exactly how they ought to be done. We unite visionaries with legendary, authentic live experiences that inspire connection, celebrate individuality, and stand the test of time. As we grow, we continue to honor the meticulous craftsmanship of the past while pioneering the intelligence-driven future of events.
+        </div>
+    </section>
+
+    <!-- The Way -->
+    <section class="values-grid">
+        <div class="value-item">
+            <span class="value-t">The Aesthetic</span>
+            <div class="value-n">Effortless Style</div>
+            <p class="value-d">We draw from an era where style was built to last. Clean silhouettes and considered details create moments that never fall out of place.</p>
+        </div>
+        <div class="value-item">
+            <span class="value-t">The Standard</span>
+            <div class="value-n">Absolute Intention</div>
+            <p class="value-d">From logic to finish, every element is chosen with purpose. No shortcuts—just well-made essentials designed for the elite standard.</p>
+        </div>
+        <div class="value-item">
+            <span class="value-t">The Promise</span>
+            <div class="value-n">Measured Trust</div>
+            <p class="value-d">These aren't trend-driven events. They are engineered to be relied on—delivering comfort, confidence, and consistency over time.</p>
+        </div>
+    </section>
+
+    <!-- The Architect -->
+    <section class="architect-section">
+        <div class="architect-content">
+            <span class="legacy-label" style="font-size: 0.9rem; margin-bottom: 1rem; display: block;">The System Architect</span>
+            <span class="quote-mark">“</span>
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 2.8rem; margin-bottom: 1.5rem;">Sohan Kumar Swain</h2>
+            <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-style: italic; color: #c5a059; margin-bottom: 2.5rem;">
+                "Event orchestration is the precise engineering of human emotion and memory. We move pixels and people with equal artistry."
+            </p>
+            <p style="color: rgba(255,255,255,0.6); line-height: 1.8; font-size: 1rem;">
+                Under Sohan's leadership, Eventer has scaled to become the gold standard for high-complexity logistics. His vision is built on the belief that event planning should be as precise as science and as beautiful as art.
+            </p>
+        </div>
+        <div class="architect-img">
+            <div style="position: absolute; inset: 0; background: linear-gradient(45deg, #c5a059 0%, #8e6d31 100%); opacity: 0.2; mix-blend-mode: color;"></div>
+            <img src="{{ url_for('static', filename='extra/sohan_ceo_original.jpg') }}" alt="Sohan Kumar Swain" style="width: 100%; height: 100%; object-fit: cover; opacity: 1;">
+        </div>
+    </section>
+
+    <!-- Final Call -->
+    <section style="padding: 10rem 2rem; text-align: center; border-top: 1px solid rgba(197, 160, 89, 0.2);">
+        <span class="legacy-label" style="margin-bottom: 1.5rem; display: block;">Build Your Legacy</span>
+        <h2 class="legacy-title" style="font-size: 3.5rem; margin: 0 auto 3rem;">Ready to Secure Your Masterpiece?</h2>
+        <a href="{{ url_for('contact') }}" class="btn-premium" style="text-decoration: none; padding: 20px 60px; border-radius: 4px; font-size: 1rem; text-transform: uppercase; letter-spacing: 3px; background: #c5a059; color: black; font-weight: 700;">Consult Our Experts</a>
+    </section>
+</div>
+{% endblock %}

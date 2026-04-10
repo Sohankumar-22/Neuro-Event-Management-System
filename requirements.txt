@@ -1,0 +1,14 @@
+Flask
+Flask-SQLAlchemy
+Flask-Mail
+Flask-SocketIO
+Flask-WTF
+pandas
+SQLAlchemy
+gunicorn
+scikit-learn
+WTForms
+gevent
+gevent-websocket
+email-validator
+python-dotenv
